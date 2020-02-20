@@ -1,0 +1,15 @@
+body{
+    margin: 0;
+    padding: 0;
+  }
+
+.apna-box{
+    display: block;
+    width: 100%;
+    border: 1px solid #3f4142;
+    margin-top: 2rem ;
+    color: white;
+    border-radius: 0.1rem;
+    text-indent: 0.8rem;
+    background-color:none;
+  }

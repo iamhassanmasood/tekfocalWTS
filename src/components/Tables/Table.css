@@ -1,0 +1,145 @@
+body{
+  margin: 0;
+  padding: 0;
+}
+.apna-box{
+    display: block;
+    width: 100%;
+    /* border: 1px solid #3f4142; */
+    background-color:#1b1b1b;
+    /* margin-top: 2rem ; */
+    color: white;
+    border-radius: 0.1rem;
+    text-indent: 0.8rem;
+  }
+  .apna-table{
+    width: 100%;
+    color: white;
+    border: 1px solid #3f4142;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .apna-table thead {
+    background-color:#023e58;
+  }
+  
+  .apna-table th, td{
+    border-bottom: 1px solid #3f4142
+  }
+  .apna-table tbody tr:hover{
+    transition: 8;
+    background-color:#b4b7c8;
+  }
+
+.apna-text{
+    padding-left: 10px ;
+    padding-top: 3px;
+    margin-top: 8px;
+    color: white;
+  }
+  
+  .map-box{
+    height:30%;
+    width:40%;
+  }
+  .map-box img{
+    height: 100%;
+    width:100%;
+  }
+
+  .btn-status-primary{
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem; 
+    color: white;
+    background-color: #023e58;
+    border: 1px solid #023e58;
+  }
+  
+  .btn-status-secondry{
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem; 
+    color: white;
+    background-color: red;
+    border: 1px solid red;
+  }
+
+  .width-pallet-state {
+    width: 20%;
+        border: 1px solid #3f4142;
+  }
+  #registered-undiscovered{
+    background-color: red;
+    border-radius: 50%;
+  }
+  .btn-status-primary{
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem; 
+    color: white;
+    background-color: #023e58;
+    border: 1px solid #023e58;
+  }
+  
+  .btn-status-secondry{
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem; 
+    color: white;
+    background-color: red;
+    border: 1px solid red;
+  }
+  
+  .card-block { padding: 15px; }
+
+.mycards{
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: space-around;
+  max-height: 100vh;
+}
+.mycards img{
+  margin: 5px;
+  box-shadow: 3px 3px 8px 0px rgba(0, 0, 0, 0.3);
+  width: 100px;
+  height: 100px;
+  float: right;
+}
+
+.mycontent{
+  border: 1px solid #3f4142;
+  align-items: center;
+  flex: 1;
+  color: white;
+  display: flex;
+}
+
+.adjustment{
+  margin-top: 1rem;
+}
+
+#sitee{
+  background-color: #1b1b1b;
+  color: white;
+  border-color:  #0f1626;
+  font-size: 12px !important;
+}
+#assete{
+  background-color: #1b1b1b;
+  color: white;
+  border-color:  #0f1626;
+  font-size: 12px !important;
+}
+  

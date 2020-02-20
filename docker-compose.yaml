@@ -1,0 +1,9 @@
+version: "3"
+services:
+  wts-react:
+    restart: always
+    container_name: wts-react
+    build: .
+    ports:
+      - 83:80
+      - 8445:443

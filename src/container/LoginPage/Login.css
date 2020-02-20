@@ -1,0 +1,31 @@
+.cont{
+    position : fixed;
+}
+.card{
+    flex: auto;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    margin: 10% auto;
+    align-content: center;
+    width: 30em;
+    
+}
+
+.logo{
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    align-items: center;
+    justify-content: center;
+}
+.card {
+    border-radius: 2rem !important; 
+}
+.login-form{
+    width: 80% !important;
+    display: inline-block !important;
+}
+.textbox-margin{
+    margin-top: 15px;
+}
