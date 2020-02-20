@@ -22,7 +22,8 @@ export default class TransferAssetsComponent extends Component {
         isSubmitted: false,
         errors: undefined,
         redirect:false,
-        done:false
+        done:false, 
+        loading:false
     }
 
     componentDidMount(){
@@ -89,9 +90,11 @@ export default class TransferAssetsComponent extends Component {
         var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
         axios.get(`${BASE_URL}:${PORT}/${ASSET_BY_SITE}${id}`, {headers})
             .then(res=> {
+                this.setState({loading:true})
                 if (res.status === 200) {
                     this.setState({
-                        assets: res.data
+                        assets: res.data,
+                        loading:false
                     })
                 }
             }).catch(err => {
@@ -154,7 +157,7 @@ export default class TransferAssetsComponent extends Component {
     
     render(){
         
-        const {open, transfer, sites, assets, siteVal, assetVal, toSite, errors} = this.state
+        const {open, transfer, sites, assets, siteVal, assetVal, toSite, errors, done, loading} = this.state
         const sitesData = sites.map((item, i)=>(
             <option key={i} value={item.id}>{item.site_name}</option>
             ))
@@ -178,7 +181,7 @@ export default class TransferAssetsComponent extends Component {
                     </Wrapper>
                 </Wrapper>
                     <Wrapper className="col-lg-12 flexi  stret" >
-                        {this.state.done? <><Break/><Loading/></> :
+                        {done? <><Break/><Loading/></> :
                         <Wrapper className="col-lg-4 boxt">
                             <Break/>
                             <form className="form-group">
@@ -196,20 +199,21 @@ export default class TransferAssetsComponent extends Component {
                                     <option  className="brave" defaultValue>No Asset Available</option>
                                     {assetData}
                                 </select>: <select className="form-control" id="asset" name ="asset" onChange={this.handleChangeAst} value={assetVal}>
-                                    <option  className="brave" defaultValue>Select Asset</option>
+                                    <option  className="brave" disabled value=''>Select Asset</option>
                                     {assetData}
                                 </select>}
 
                                 <Label>To Site : </Label>
-                                {siteVal && !assetVal ?<select className="form-control" id="tosite" name ="tosite" disabled value={toSite}>
-                                    <option  className="brave">Select Asset First </option>
-                                </select>: !assetVal ? <select className="form-control" id="tosite" name ="tosite" onChange={this.handleChangeToSite} value={toSite}>
-                                <option  className="brave" >Select Site </option>: 
-                                </select>: <select className="form-control" id="tosite" name ="tosite" onChange={this.handleChangeToSite} value={toSite}>
-                                <option  className="brave">Select Site </option>: 
+                                {!siteVal?<select className="form-control" id="tosite" name ="tosite" disabled >
+                                    <option className="brave" defaultValue>Select Site And Asset </option>
+                                </select>: !assetVal ? <select className="form-control" id="tosite" name ="tosite" disabled>
+                                <option className="brave" defaultValue>Select Asset First </option> 
+                                </select>: loading? <select className="form-control" id="tosite" name ="tosite" disabled>
+                                <option className="brave">Loading... </option></select>: <select className="form-control" id="tosite" name ="tosite" onChange={this.handleChangeToSite} value={toSite}>
+                                <option className="brave" disabled value=''>Select Site </option>: 
                                 {toSitesData}
                                 </select>}
-                                <Label/>
+                                <Break/>
                                 {errors ? <span className="flexi" style={{color: 'red', fontSize:'12px'}}>{errors}</span>:''} 
                                 {transfer? <p className="flexi" style={{color: 'white', fontSize:'16px', backgroundColor:'#023e58'}}>Asset Transferred Successfully</p>:
                                  <button onClick={this.toggleModal} className="form-control btn btn-info" id="seli">Transfer Asset</button>}
