@@ -1,21 +1,79 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component , Fragment} from 'react'
 import {Wrapper, Table, TableRow, TableBody, TableData, TableHead, TableHeadings, HeadingTag, Break} from '../Dashboard/StyledCompo';
-import {BASE_URL, PORT, SITES_API, ASSET_BY_SITE, ReportAPI} from '../../config/config.js'
+import {BASE_URL, PORT, SITES_API, ReportAPI} from '../../config/config.js'
 import axios from 'axios'; import ReportValidation from './validator'
 import TablePagination from '@material-ui/core/TablePagination';
 import Loading from '../Loading/Loading';
-import { Redirect } from "react-router-dom";
+import Chart from 'react-apexcharts';
+import ReactApexChart from 'react-apexcharts';
 
-export default class Reports extends Component {
+export default class Reporting extends Component {
     _isMounted = false
     constructor(props){
         super(props);
         this.state={
-            siteData:[], assetsData:[], redirect:false, siteValue:'', errors:'', isSubmitted:false,
-            assetValue:'', fromDate:'', toDate:'', reportData:undefined, rowsPerPage: 15,
-            page: 0, count:0, done: false
+            siteData:[], redirect:false, siteValue:'', errors:'', isSubmitted:false,
+            fromDate:'', toValue:'', reportData:undefined, rowsPerPage: 15, options:undefined,
+            page: 0, count:0, done: false,
+            optionPie: {
+                labels: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
+                colors: ["#0992e1",  "#fd3550", '#7f8281',  "#1e5aa0", "#fb551d",],
+                legend: {
+                  position: 'bottom',
+                  labels: {
+                      colors: 'white',
+                      useSeriesColors: false
+                  },
+                },
+                responsive: [{
+                  breakpoint: undefined,
+                  options: {
+                    chart: {
+                        sparkline: {
+                            enabled: true
+                      }
+                    }
+                  }
+                }]
+            },
+            series: [{
+                name:'Asset',
+                data: [400, 430, 448, 470, 540]
+              }],
+            optionsBar: {
+                plotOptions: {
+                    bar: {
+                        distributed: true
+                    },
+                    dataLabels: {
+                        show: false,
+                    }
+                  },
+                colors: ["#0992e1",  "#fd3550", '#7f8281',  "#1e5aa0", "#fb551d",],
+                legend: {
+                  position: 'bottom',
+                },
+                responsive: [{
+                  breakpoint: undefined,
+                  options: {
+                    chart: {
+                        sparkline: {
+                            enabled: true
+                      }
+                    }
+                  }
+                }],
+                chart: {
+                    foreColor: '#fff',
+                    animations: {
+                        speed: 1600,
+                    },
+                },
+                xaxis: {
+                    categories: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
+                  },
+            },
         }
-        
     }
     componentDidMount(){
         this._isMounted = true;
@@ -40,7 +98,7 @@ export default class Reports extends Component {
       }
   
     handleEmpty=()=>{
-        this.setState({siteValue:'', assetValue:'', fromDate:'', toDate:''})
+        this.setState({fromDate:'', options:''})
       }
     handleChange=()=>{
         this.handleEmpty()
@@ -49,13 +107,11 @@ export default class Reports extends Component {
         this.setState({
             siteValue:result, errors:undefined
         })
-        this.handleChangeAssets(result);
       }
-    handleChangeAst=()=>{
-        let e = document.getElementById("asset");
-        let result = e.options[e.selectedIndex].value;
+      handleChangeValue=(e)=>{
+        let value = e.target.value;
         this.setState({
-            assetValue:result, errors:undefined
+            options:value
         })
       }
     handleChangeDate=(e)=>{
@@ -65,19 +121,6 @@ export default class Reports extends Component {
             [name]:value
         })
 
-      }
-
-    handleChangeAssets=(id)=>{
-        var token = localStorage.getItem('accessToken');
-        var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-        axios.get(`${BASE_URL}:${PORT}/${ASSET_BY_SITE}${id}`, {headers})
-        .then(res=> {
-            if (this._isMounted) {
-                this.setState({
-                    assetsData: res.data
-                })
-            }
-        }).catch(err => err)
       }
     
     handleSubmit=(e)=>{
@@ -90,10 +133,9 @@ export default class Reports extends Component {
         } else {
         var token = localStorage.getItem('accessToken');
         var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-        const {siteValue, assetValue, fromDate, toDate}=this.state;
+        const {siteValue, fromDate, options}=this.state;
         const fromTime = (new Date(fromDate).getTime())/1000;
-        const toTime = (new Date(toDate).getTime())/1000+86400;
-        let body = "site_id="+siteValue+"&asset_id="+assetValue+"&from_time="+fromTime+"&to_time="+toTime;
+        let body = "site_id="+siteValue+"&from_time="+fromTime+"&to_time="+options;
         axios.post(`${BASE_URL}:${PORT}/${ReportAPI}`, body, {headers})
         .then(res=>{
             if(res.status === 200){
@@ -123,23 +165,16 @@ export default class Reports extends Component {
       };
 
     render() {
-        const{siteValue, assetValue, siteData, assetsData, fromDate, toDate, errors, reportData, page, rowsPerPage, count, done} = this.state;
+        const{siteValue, siteData, fromDate, errors, reportData, page, rowsPerPage, count, done} = this.state;
         const sitesData = siteData.map((item, i)=>(
             <option key={i} value={item.id}>{item.site_name}</option>
             ))
 
-        const assetData = assetsData.map((item, i)=>(
-            <option key={i} value={item[10]}>{item[1]}</option>
-            ))
-
-        if(this.state.redirect){
-            return <Redirect to='/login'/>
-        }
-
+        const finalPie = [400, 430, 448, 470, 540];
         return (
             <Fragment>
                 <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
-                    <HeadingTag className="flexi">Reports</HeadingTag>
+                    <HeadingTag className="flexi">WTS Reporting</HeadingTag>
                     {done? <Fragment><Break/><Break/><Break/><Loading/></Fragment>:
                     <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
                         <form className="form-group"> 
@@ -151,40 +186,41 @@ export default class Reports extends Component {
                                             {sitesData}
                                     </select>
                                 </Wrapper>
+                            
                                 
                                 <Wrapper className="col-lg-3">
-                                <label>Select Asset:</label>
-                                {!siteValue ? <select className="form-control" id="asset" name ="asset" disabled value={assetValue}>
-                                    <option className="brave" defaultValue>Select Site First</option>
-                                    {assetData}
-                                </select>: assetsData.length === 0 ? <select className="form-control" id="asset" name ="asset" disabled value={assetValue}>
-                                    <option  className="brave" defaultValue>No Asset Available</option>
-                                    {assetData}
-                                </select>: <select className="form-control" id="asset" name ="asset" onChange={this.handleChangeAst} value={assetValue}>
-                                    <option  className="brave" defaultValue>Select Asset</option>
-                                    {assetData}
-                                    <option  className="brave" value={0}>All Assets</option>
-                                </select>}
-                                </Wrapper>
-                                
-                                <Wrapper className="col-lg-3">
-                                    <label>From Date:</label>
+                                    <label> Date:</label>
                                     <input className="form-control" type='date' name='fromDate' onChange={this.handleChangeDate} value={fromDate}/>
                                 </Wrapper>
 
                                 <Wrapper className="col-lg-3">
-                                    <label>To Date:</label>
-                                    <input className="form-control" type='date' name='toDate' onChange={this.handleChangeDate} value={toDate}/>
+                                    <Wrapper style={{marginTop:'2rem', display:'flex', justifyContent:'space-evenly'}}>
+                                        <label className="radio-inline"><input type='radio' onChange={this.handleChangeValue} id="daily" name="type" value={1}/> Daily</label>
+                                        <label className="radio-inline"><input type='radio' onChange={this.handleChangeValue} id="weekly" name="type" value={7}/> Weekly</label>
+                                        <label className="radio-inline"><input type='radio' onChange={this.handleChangeValue} id="monthly" name="type" value={30}/> Monthly</label>
+                                    </Wrapper>
+                                </Wrapper>
+                                <Wrapper className="col-lg-3">
+                                    <button className="form-control btn btn-info" id="seli" onClick={this.handleSubmit}>Generate Report</button>
                                 </Wrapper>
                                 </Wrapper>
                                 
-                                <Wrapper className="col-lg-3 flexi">
-                                    <button className="form-control btn btn-info" id="seli" onClick={this.handleSubmit}>Generate Report</button>
-                                </Wrapper>
                                     {errors? <p className="flexi" style={{color:'red'}}>{errors}</p>:''}
                                 <Break/>
                         </form>
                     </Wrapper>}
+                    <Wrapper className='col-lg-12'>
+                        <Wrapper className='row'>
+                            <Wrapper className = 'col-lg-5' style={{marginRight:0, height :`450px`}}>
+                                <Chart options={this.state.optionPie} series={finalPie} type="pie" width={`100%`} height={`100%`} />
+                            </Wrapper>
+
+                            <Wrapper className='col-lg-7' id="chart">
+                                <ReactApexChart options={this.state.optionsBar} series={this.state.series} type="bar" height={416}/>
+                            </Wrapper>
+                        </Wrapper>
+
+                    </Wrapper>
 
                     {!done?<Wrapper className="col-lg-12">
                         <Table className="new-table" >
@@ -199,7 +235,7 @@ export default class Reports extends Component {
                             <TableBody>
                                 {reportData!==undefined ? reportData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((item, i)=> (
                                         <TableRow key={i}>
-                                            <TableData>{i+1+rowsPerPage*page}</TableData>
+                                            <TableData>{i+1}</TableData>
                                             <TableData>{item.site_name}</TableData>
                                             <TableData>{item.asset_name}</TableData>
                                             <TableData>{item.event}</TableData>

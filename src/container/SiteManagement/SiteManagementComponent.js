@@ -15,6 +15,7 @@ import { Redirect } from "react-router-dom";
 
 var token = localStorage.getItem('accessToken');
 var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
+
 export default class SiteManagementComponent extends Component {
     _isMounted = false;
     constructor(props) {
@@ -58,7 +59,7 @@ export default class SiteManagementComponent extends Component {
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                     localStorage.removeItem('accessToken');
                     this.setState({redirect:true})
-              }
+              }else return err
             })        
       }
 
@@ -95,14 +96,17 @@ export default class SiteManagementComponent extends Component {
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                 localStorage.removeItem('accessToken');
                 this.setState({redirect:true})
-              }
+              } else return err
             })
       }
 
     componentWillUnmount() {
         this._isMounted = false;
       }
-    getRegion=()=>{
+
+    getRegion=()=>{        
+        var token = localStorage.getItem('accessToken');
+        var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
         axios.get(`${BASE_URL}:${PORT}/${REGIONS_API}/`, {headers})
         .then(res=> {
         if (res.status === 200) {
@@ -115,6 +119,8 @@ export default class SiteManagementComponent extends Component {
     }
 
     getDevice=()=>{
+        var token = localStorage.getItem('accessToken');
+        var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
         axios.get(`${BASE_URL}:${PORT}/${DEVICES_API}/`, {headers})
         .then(res=> {
         if (res.status === 200) {
@@ -312,7 +318,7 @@ export default class SiteManagementComponent extends Component {
                             }
                             var timeNow = this.timeConverter(rowData.timestamp)
                             return <TableRow tabIndex={-1} key={i}>
-                                <TableData>{i+1}</TableData>
+                                <TableData>{i+1+rowsPerPage*page}</TableData>
                                 <TableData>{rowData.site_id}</TableData>
                                 <TableData>{rowData.site_name}</TableData>
                                 <TableData>{rowData.lat_lng}</TableData>
@@ -337,9 +343,7 @@ export default class SiteManagementComponent extends Component {
                                         </ModalFooter>
                                     </Modal>
                                 </TableData>
-                        </TableRow>
-                        
-                        })}
+                        </TableRow> })}
                         </TableBody>
                     </Table>
                     )}
@@ -395,7 +399,7 @@ export default class SiteManagementComponent extends Component {
                                             <option key={i} value={dev.id}> {dev.device_name} </option>))}
                                         </select>
                                     </Wrapper>
-                                    <Button className="form-group col-lg-12 flexi" onClick={this.handleEditSubmit.bind(this)} type ="submit" size="large" variant="contained" color="primary" aria-label="add"> Done</Button>
+                                    <button className="form-group col-lg-12 btn btn-info flexi" onClick={this.handleEditSubmit.bind(this)} type ="submit" size="large" variant="contained" color="primary" aria-label="add"> Done</button>
                                     {errors ? <span style={{color: 'red', margin:"auto" , fontSize:'12px'}}>{errors}</span>: ""}
                                 </form>
                             </ModalBody>
@@ -439,9 +443,9 @@ export default class SiteManagementComponent extends Component {
                                         <option key={i} value={dev.id}> {dev.device_name} </option>))}
                                     </select>
                                 </Wrapper>
-                                <Button 
-                                    className="form-group col-lg-12 flexi" onClick={this.handleAddSubmit.bind(this)} 
-                                    type ="submit" size="medium" variant="contained" color="primary" aria-label="add"> <AddIcon />ADD SITE</Button>
+                                <button 
+                                    className="form-group col-lg-12 btn btn-info flexi" onClick={this.handleAddSubmit.bind(this)} 
+                                    type ="submit" size="medium" variant="contained" color="primary" aria-label="add">ADD SITE</button>
                                 {errors ? <span style={{color: 'red', margin:"auto" , fontSize:'12px'}}>{errors}</span>: ""}
                             </form>
                         </ModalBody>

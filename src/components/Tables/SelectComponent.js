@@ -1,12 +1,12 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import MarkerIcon from '../../assets/icon/map_icon.png'
 import {BASE_URL, PORT, SITES_API, ASSET_BY_SITE, ALERTS_API, REGIONS_API, DEVICES_API} from '../../config/config.js'
 import axios from 'axios'
 import Chart from 'react-apexcharts'
-import {BoxWrapper, TableWrapper, TabTitle, BoxWrapperM, mapStyles, Wrapper, TabWrapper, ChartWrapper} from './styled-component'
-import Error from '@material-ui/icons/Error';import PieChartIcon from '@material-ui/icons/PieChart';
+import {BoxWrapper, TableWrapper, TabTitle, BoxWrapperM, mapStyles, Wrapper, TabWrapper, ChartWrapper} from './styled-component';
+import PieChartIcon from '@material-ui/icons/PieChart';
 import EqualizerIcon from '@material-ui/icons/Equalizer';import MapIcon from '@material-ui/icons/Map';
-import './Table.css';
+import './Table.css'; import InfoIcon from '@material-ui/icons/Info';
 import RegisteredUnDiscoverd from '../../assets/images/Registered-Undiscovered.PNG'
 import RegisteredDiscoverd from '../../assets/images/Registered-Discovered.PNG'
 import UnAuthorized from '../../assets/images/Unauthorized-Entry.PNG'
@@ -46,7 +46,7 @@ const MapWithAMarker = compose( withProps({
             )
         }
     })
-export default class SelectComponent extends Component { 
+export default class SelectComponent extends React.PureComponent { 
     _isMounted = false;
         constructor(props) {
         super(props);
@@ -92,7 +92,8 @@ export default class SelectComponent extends Component {
             wss:null,
             redirect:false,
             done:false,
-            loading:false,          
+            loading:false,  
+            toast:undefined        
         }
     }
 
@@ -112,7 +113,7 @@ export default class SelectComponent extends Component {
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                 localStorage.removeItem('accessToken');
                 this.setState({redirect:true})
-              }
+              } else return err
         })
 
         axios.get(`${BASE_URL}:${PORT}/${REGIONS_API}/`, {headers})
@@ -224,14 +225,15 @@ export default class SelectComponent extends Component {
             }
             var alertMessage = data.message;
             if(alertMessage.length>0){
-                let toastmessage = alertMessage.split(',')[0]+ " is "+ alertMessage.split(',')[1];
-                toast.error(toastmessage)
+                const toastmessage = alertMessage.split(',')[0]+ " is "+ alertMessage.split(',')[1];
                 let {Alertdata} = this.state;
                 Alertdata.unshift({asset_name:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
-                this.setState({Alertdata:Alertdata})
+                this.setState({Alertdata:Alertdata, toast:toastmessage})
+                toast(this.state.toast)
+            } else if(!data.message){
+                this.setState({toast:''})
             }
           }
-
     };
 
     checkAlert = () => {
@@ -455,22 +457,21 @@ export default class SelectComponent extends Component {
                                     </ChartWrapper>
                                     <Wrapper>
                                     <MapWithAMarker
-                                    isMarkerShown
-                                    lat = {this.state.lat}
-                                    lng = {this.state.lng}
-                                    
-                                    
+                                        isMarkerShown
+                                        lat = {this.state.lat}
+                                        lng = {this.state.lng}
+    
                                     />
                                     </Wrapper>
                                 </BoxWrapperM>
                             </Wrapper>
 
                             <TableWrapper className="col-lg-4">
-                                <BoxWrapper className="apna-box" style={{marginRight:0, height :`390px`}}>
+                                <BoxWrapperM className="apna-box" >
                                     <ChartWrapper><PieChartIcon fontSize="small" /><TabTitle>Site Summary</TabTitle></ChartWrapper>
                                     <Chart options={this.state.options}  
-                                        series={finalPie} type="pie" width={`100%`} height={`100%`}  />
-                                </BoxWrapper>
+                                        series={finalPie} type="pie" width={`100%`} height={400}  />
+                                </BoxWrapperM>
                             </TableWrapper>
                         </Wrapper>
                     </Wrapper>
@@ -478,7 +479,7 @@ export default class SelectComponent extends Component {
                     <Wrapper className="col-lg-12">
                         <BoxWrapper className="apna-box">
                             <TabWrapper>
-                                <Error fontSize="small" />
+                                <InfoIcon fontSize="small" />
                                 <TabTitle>Site Information</TabTitle>
                             </TabWrapper>
                                 <table className="apna-table">
@@ -539,7 +540,7 @@ export default class SelectComponent extends Component {
                             <TableWrapper className="col-lg-6">
                                 <BoxWrapper className="apna-box">
                                     <TabWrapper>
-                                        <EqualizerIcon fontSize="small" />
+                                        <InfoIcon fontSize="small" />
                                         <TabTitle>Asset Information</TabTitle>
                                     </TabWrapper>
                                     <table className= "apna-table">

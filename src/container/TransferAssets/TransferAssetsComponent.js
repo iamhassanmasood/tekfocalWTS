@@ -45,7 +45,7 @@ export default class TransferAssetsComponent extends Component {
                     toast("Sorry! Session Expired Please Login Again")
                     localStorage.removeItem('accessToken');
                     this.setState({redirect:true})
-              }
+              } else return err
             })
       }
 
@@ -102,7 +102,7 @@ export default class TransferAssetsComponent extends Component {
                     toast("Sorry! Session Expired Please Login Again")
                     localStorage.removeItem('accessToken');
                     this.setState({redirect:true})
-                  }
+                  } else return err
                 })
       }
 
@@ -141,13 +141,12 @@ export default class TransferAssetsComponent extends Component {
               setTimeout(()=> this.setState({transfer: false}), 2000)
             }
         }).catch(err=> {
-            if (err.response.data.detail === "Authentication credentials were not provided.") {
-                
+            if (err.response.data.detail === "Authentication credentials were not provided.") {  
                 localStorage.removeItem('accessToken');
                 this.setState({redirect:true})
             } else if(err.response.status === 304){
-                toast("Sorry! Your Request can't fulfill right now :(")
-            }
+                toast.error("Sorry! Your Request can't fulfill right now :(")
+            } else return err
         })
     }
     componentWillUnmount() {
@@ -187,7 +186,7 @@ export default class TransferAssetsComponent extends Component {
                             <form className="form-group">
                                 <Label>From Site : </Label>
                                 <select className="form-control" id="site" name="site" onChange={this.handleChange} value={siteVal}>
-                                    <option  className="brave" value="" disabled defaultValue>Select Site</option>
+                                    <option  className="brave" value='' disabled defaultValue>Select Site</option>
                                     {sitesData}
                                 </select>
                                 
@@ -210,23 +209,27 @@ export default class TransferAssetsComponent extends Component {
                                 <option className="brave" defaultValue>Select Asset First </option> 
                                 </select>: loading? <select className="form-control" id="tosite" name ="tosite" disabled>
                                 <option className="brave">Loading... </option></select>: <select className="form-control" id="tosite" name ="tosite" onChange={this.handleChangeToSite} value={toSite}>
-                                <option className="brave" disabled value=''>Select Site </option>: 
+                                <option className="brave" disabled value=''>Select Site </option> 
                                 {toSitesData}
                                 </select>}
                                 <Break/>
                                 {errors ? <span className="flexi" style={{color: 'red', fontSize:'12px'}}>{errors}</span>:''} 
-                                {transfer? <p className="flexi" style={{color: 'white', fontSize:'16px', backgroundColor:'#023e58'}}>Asset Transferred Successfully</p>:
+                                {transfer? <span className="flexi" style={{color: '#ffffff', fontSize:'14px'}}>Asset Transferred Successfully!!!</span>:
                                  <button onClick={this.toggleModal} className="form-control btn btn-info" id="seli">Transfer Asset</button>}
-                                
                             </form>
                         </Wrapper>}
                     </Wrapper>
 
-                    <Modal  style ={{color: "black"}} isOpen={open} toggle={this.toggleModal} >
-                        <ModalHeader toggle={()=>this.setState({open:false})}> Transfer Assets <SwapHorizIcon/></ModalHeader>
+                    <Modal style ={{color: "black"}} isOpen={open} toggle={this.toggleModal} >
+                        <ModalHeader> Transfer Assets <SwapHorizIcon/></ModalHeader>
                         <ModalBody>Are you want to transfer Asset?</ModalBody>
                         <ModalFooter>
-                            <Button type ="submit" size="small" variant="contained" color="primary" onClick={this.handleSubmit}> Yes</Button>
+                            <Wrapper>
+                                <Button type ="submit" size="small" variant="contained" color="primary" onClick={this.handleSubmit}> Yes</Button>
+                            </Wrapper>
+                            <Wrapper>
+                                <Button type ="submit" size="small" variant="contained" color="secondary" onClick={()=>this.setState({open:false})}> No</Button>
+                            </Wrapper>
                         </ModalFooter>
                     </Modal>
                     <ToastContainer/>

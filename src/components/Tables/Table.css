@@ -2,16 +2,6 @@ body{
   margin: 0;
   padding: 0;
 }
-.apna-box{
-    display: block;
-    width: 100%;
-    /* border: 1px solid #3f4142; */
-    background-color:#1b1b1b;
-    /* margin-top: 2rem ; */
-    color: white;
-    border-radius: 0.1rem;
-    text-indent: 0.8rem;
-  }
   .apna-table{
     width: 100%;
     color: white;
@@ -134,12 +124,12 @@ body{
   background-color: #1b1b1b;
   color: white;
   border-color:  #0f1626;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 #assete{
   background-color: #1b1b1b;
   color: white;
   border-color:  #0f1626;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
   

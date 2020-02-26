@@ -12,6 +12,7 @@ import AlertManagement from './container/AlertManagement';
 import TransferAssets from './container/TransferAssets'
 import AssetManagement from './container/AssetManagement'
 import Reports from './container/Reports'
+import Reporting from './container/Reporting'
 import NotFound from './container/NotFound'
 
 const AuthenticatedRoutes =  ({component: Component, ...rest})=>(
@@ -42,6 +43,7 @@ function App() {
         <AuthenticatedRoutes exact path="/transferassets" component={TransferAssets}/>
         <AuthenticatedRoutes exact path="/assetmanagement" component={AssetManagement}/>
         <AuthenticatedRoutes exact path="/report" component={Reports}/>
+        <AuthenticatedRoutes exact path="/reporting" component={Reporting}/>
         <AuthenticatedRoutes exact path="/*" component={NotFound}/>
       </Switch>
     </Router>

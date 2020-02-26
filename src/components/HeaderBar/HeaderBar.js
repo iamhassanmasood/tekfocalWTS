@@ -9,7 +9,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton"; import MenuIcon from "@material-ui/icons/Menu";
 import DashboardIcon from '@material-ui/icons/Dashboard'; import AccountTreeIcon from '@material-ui/icons/AccountTree'
-import Alerticon from '@material-ui/icons/Notifications';
+import Alerticon from '@material-ui/icons/Notifications'; import TrendingUpIcon from '@material-ui/icons/TrendingUp';
 import SwapHorizontalCircleIcon from '@material-ui/icons/SwapHorizontalCircle';
 import DevicesOtherIcon from '@material-ui/icons/DevicesOther';
 import DomainDisabledIcon from '@material-ui/icons/DomainDisabled';
@@ -137,6 +137,13 @@ export default function HeaderBar(props) {
             <NavLink exact to="/report" className='main-nav' activeClassName='main-nav-active'>
               <IconWrapper className="row" title=" Transfer Assets"><ReportIcon fontSize="small"/> 
                 <NameItem className={clsx({[classes.sideBarNames]: open, [classes.sideBarNamesShift]:!open })}> Reports</NameItem>
+              </IconWrapper>
+            </NavLink>
+        </SideWrapper>
+        <SideWrapper >
+            <NavLink exact to="/reporting" className='main-nav' activeClassName='main-nav-active'>
+              <IconWrapper className="row" title=" Transfer Assets"><TrendingUpIcon fontSize="small"/> 
+                <NameItem className={clsx({[classes.sideBarNames]: open, [classes.sideBarNamesShift]:!open })}> Reporting</NameItem>
               </IconWrapper>
             </NavLink>
         </SideWrapper>

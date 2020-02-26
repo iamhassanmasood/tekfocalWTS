@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import TablePagination from '@material-ui/core/TablePagination';
 import {Wrapper, Table, TableRow, TableBody, TableData, TableHead, TableHeadings, HeadingTag, Break} from '../Dashboard/StyledCompo';
-import { ToastContainer, toast } from 'react-toastify';
 import {BASE_URL, PORT, ALERTS_API} from '../../config/config'
 import axios from 'axios'; import { Redirect } from "react-router-dom";
 import Loading from '../Loading/Loading';
@@ -14,7 +13,7 @@ export default class AlertManagementComponent extends Component{
         page: 0,
         count:undefined,
         redirect:false,
-        done:false
+        done:false,
     }
 
     componentDidMount() {
@@ -39,9 +38,7 @@ export default class AlertManagementComponent extends Component{
         if (err.response.data.detail === "Authentication credentials were not provided.") {
             localStorage.removeItem('accessToken');
             this.setState({redirect:true})
-          } else{
-            throw Error(err)
-          } 
+          } else return err 
         })
     })}
     connectAlert = () => {
@@ -59,7 +56,7 @@ export default class AlertManagementComponent extends Component{
             connectInterval = setTimeout(this.checkAlert, Math.min(10000, that.timeout));
         };
 
-        wss.onerror = err => wss.close();
+        wss.onerror = err => err? wss.close():''
 
         wss.onmessage = e=>{
             if (e.data) {
@@ -67,13 +64,11 @@ export default class AlertManagementComponent extends Component{
             }
             var alertMessage = data.message;
             if(alertMessage.length>0){
-                toast.error(alertMessage)
                 let {Alertdata} = this.state;
                 Alertdata.unshift({asset_name:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
                 this.setState({Alertdata:Alertdata})
             }
           }
-
     };
 
     checkAlert = () => {
@@ -92,30 +87,31 @@ export default class AlertManagementComponent extends Component{
     handleChangeRowsPerPage = event => {
         this.setState({rowsPerPage: +event.target.value, page: 0});
       };
+    
+    timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
+        var time = date +' '+ month + ' '+ year + ' ' + hour + ':' + min + ':' + sec ;
+        return time;
+      }
       
     render(){
     const {Alertdata, page, rowsPerPage} = this.state;
     const rows = Alertdata.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).reverse().map((alt, i)=>{
-        function timeConverter(UNIX_timestamp){
-            var a = new Date(UNIX_timestamp * 1000);
-            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            var year = a.getFullYear();
-            var month = months[a.getMonth()];
-            var date = a.getDate();
-            var hour = a.getHours();
-            var min = a.getMinutes();
-            var sec = a.getSeconds();
-            var time = date +' '+ month + ' '+ year + ' ' + hour + ':' + min + ':' + sec ;
-            return time;
-          }
         var AlertTimeNow;
         if(!alt.timestamp){
             AlertTimeNow = '';
         } else{      
-            AlertTimeNow = timeConverter(alt.timestamp);
+            AlertTimeNow = this.timeConverter(alt.timestamp);
         }
-    return <TableRow key={i}>
-        <TableData >{i+1}</TableData>
+    return <TableRow key={alt.id} style={{height:'30px'}}>
+        <TableData >{i+1+rowsPerPage*page}</TableData>
         <TableData >{alt.event}</TableData>
         <TableData>{alt.asset_name}</TableData>
         <TableData>{AlertTimeNow}</TableData>
@@ -128,24 +124,23 @@ export default class AlertManagementComponent extends Component{
             <Fragment>    
                 <Break/>
                     <Wrapper className="col-lg-12 boxtt">
-                    <HeadingTag>Alerts</HeadingTag>
-                    {this.state.done ? (<Fragment><Break/><Break/><Loading/></Fragment>): (
-                    <Table className="new-table" >
-                        <TableHead>
-                            <TableRow>
-                                <TableHeadings>Sr#</TableHeadings>
-                                <TableHeadings>Events</TableHeadings>
-                                <TableHeadings>Asset</TableHeadings>
-                                <TableHeadings>Created At</TableHeadings>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rows}
-                        </TableBody>
-                    </Table>)}
-                    </Wrapper>
-                    {Alertdata.length>10?
-                    <TablePagination 
+                        <HeadingTag>Alerts</HeadingTag>
+                        {this.state.done ? (<Fragment><Break/><Break/><Loading/></Fragment>): (
+                        <Table className="new-table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableHeadings>Sr#</TableHeadings>
+                                    <TableHeadings>Events</TableHeadings>
+                                    <TableHeadings>Asset</TableHeadings>
+                                    <TableHeadings>Created At</TableHeadings>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {rows}
+                            </TableBody>
+                        </Table>)}
+                        {Alertdata.length>10?
+                        <TablePagination 
                         style={{ color:'white',  backgroundColor:'#1b1b1b'}}
                         rowsPerPageOptions={[10, 15, 20, 100]}
                         component="div"
@@ -155,9 +150,9 @@ export default class AlertManagementComponent extends Component{
                         onChangePage={this.handleChangePage}
                         onChangeRowsPerPage={this.handleChangeRowsPerPage}
                         labelRowsPerPage={'Assets Per Page'}
-                    />:''}
+                        />:''}
+                    </Wrapper>
                     <Break/>
-                <ToastContainer/>
             </Fragment>
         )
     }

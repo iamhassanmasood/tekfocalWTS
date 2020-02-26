@@ -3,7 +3,7 @@ body {
     padding: 0px;
     /* background-color: #1b1b1b; */
     font-family: 'Gill Sans', sans-serif !important;
-    font-size: 12px;
+    font-size: 14px;
     /* overflow-y: hidden;
     overflow-x: hidden; */
     background-image: url('./assets/images/LoginBackGround.jpg');
@@ -46,14 +46,6 @@ body {
     color: white;
   }
   
-
-  .apna-box{
-    width: 100%;
-    border-bottom: 0.5px solid #3f4142;
-    background-color:#1b1b1b;
-    color: white;
-    text-indent: 0.8rem;
-  }
   .apna-table{
     width: 100%;
     color: white;
@@ -70,7 +62,7 @@ body {
   
   .apna-table th, td{
     border-bottom: 1px solid #3f4142;
-    font-size: 12px;
+    font-size: 14px;
   }
   .apna-table tbody tr:hover{
     background-color:#6699cc;
@@ -112,14 +104,14 @@ body {
     background-color:#023e58;
   }
   .new-table th{
-    font-size: 12px;
+    font-size: 14px;
     padding-top: 10px;
     padding-bottom: 10px;
   }
 
   .new-table th, td{
     border-bottom: 1px solid #3f4142;
-    font-size: 12px;
+    font-size: 14px;
   }
   .new-table tbody tr:hover{
     background-color:#6699cc;
@@ -130,11 +122,11 @@ body {
   .new-table tr:nth-child(even){background-color: #3f4143}
   .form-group input{
     border-radius: 2px !important;
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
   .form-group select{
     border-radius: 2px !important;
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
   .form-group label{
    padding-left: 5px !important;
@@ -174,7 +166,7 @@ body {
   content:" *"; 
   color: #e32;
   position: absolute;  
-  font-size: 12px; 
+  font-size: 14px; 
 }
 .toxt{
   text-align: center;
@@ -186,31 +178,60 @@ body {
 }
 .MuiTablePagination-selectIcon{
   color:white !important;
-  font-size: 12px; 
+  font-size: 14px; 
 }
 .MuiTablePagination-menuItem{
   color:black !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 .MuiTablePagination-menuItem:hover{
   background-color:#023e58 !important;
   color:white !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
-/* .MuiSvgIcon-fontSizeSmall {
-  font-size: 15px !important;
-} */
 .form-control{
-  font-size: 12px !important;
+  font-size: 14px !important;
 }
 .main-nav{
   text-decoration: none;
 }
-.main-nav:hover{
-  background-color: #023e58 !important;
+.main-nav:hover div{
+  color: #023e58 !important;
   text-decoration: none;
 }
-.main-nav-active{
-  background-color: #023e58 !important;
+.main-nav-active div{
+  color: #09acf3 !important;
   text-decoration: none;
+}
+.main-nav:hover{
+  text-decoration: none;
+}
+.modal-header{
+  background-color: #023e58 !important;
+  color:white !important;
+}
+.close{
+  color:white !important;
+}
+.modal{
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+.apexcharts-canvas{
+  color: black !important;
+}
+.apexcharts-legend-text{
+  color:white !important;
+}
+#SvgjsTspan1117 {
+  color:white !important;
+}
+.apexcharts-menu-icon{
+  color:white !important;
+}
+.apexcharts-menu-icon{
+  display: none !important;
+}
+
+.apexcharts-canvas{
+  background-color:#023e58 !important;
 }

@@ -52,7 +52,7 @@ export default class DeviceManagementComponent extends Component{
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                 localStorage.removeItem('accessToken');
                 this.setState({redirect:true})
-              }
+              } else return err
         })
       }
 
@@ -73,7 +73,7 @@ export default class DeviceManagementComponent extends Component{
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                 localStorage.removeItem('accessToken');
                 this.setState({redirect:true})
-            }
+            } else return err
         })
       }
     
@@ -229,7 +229,7 @@ export default class DeviceManagementComponent extends Component{
 
                         var timeNow = this.timeConverter(alt.timestamp)
                         return <TableRow key={i}>
-                            <TableData style={{width:'5%'}}>{i+1}</TableData>
+                            <TableData style={{width:'5%'}}>{i+1+rowsPerPage*page}</TableData>
                             <TableData style={{width:'10%'}}>{alt.device_id}</TableData>
                             <TableData style={{width:'15%'}}>{alt.device_name}</TableData>
                             <TableData style={{width:'25%'}}>{alt.api_key}</TableData>
@@ -257,18 +257,18 @@ export default class DeviceManagementComponent extends Component{
                         </TableBody>
                     </Table>)}
                         <Break/>
+                        {data.length> 10? <TablePagination 
+                            style={{ color:'white',  backgroundColor:'#1b1b1b'}}
+                            rowsPerPageOptions={[10, 15, 20, 100]}
+                            component="div"
+                            count={data.length}
+                            rowsPerPage={rowsPerPage}
+                            page={page}
+                            onChangePage={this.handleChangePage}
+                            onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                            labelRowsPerPage={'Devices Per Page'}
+                        /> :""}
                     </Wrapper>
-                    {data.length> 10? <TablePagination 
-                        style={{ color:'white',  backgroundColor:'#1b1b1b'}}
-                        rowsPerPageOptions={[10, 15, 20, 100]}
-                        component="div"
-                        count={data.length}
-                        rowsPerPage={rowsPerPage}
-                        page={page}
-                        onChangePage={this.handleChangePage}
-                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                        labelRowsPerPage={'Devices Per Page'}
-                    /> :""}
                     {/**Edit Modal */}
 
                         <Modal  isOpen={isOpen} toggle={this.openEditModal} backdrop={false}>
@@ -291,7 +291,7 @@ export default class DeviceManagementComponent extends Component{
                                         <input type="text" className="form-control" name ="api_key" value={api_key.trim()} onChange={this.handleChange} placeholder="Device Key"/>
                                     </Wrapper>
                                     
-                                    <Button className="form-group col-lg-12 flexi" type ="submit" onClick={this.handleEditSubmit.bind(this)} size="large" variant="contained" color="primary"> Done</Button>
+                                    <button className="form-group col-lg-12 btn btn-info flexi" type ="submit" onClick={this.handleEditSubmit.bind(this)} size="large" variant="contained" color="primary"> Done</button>
                                         {errors ? <span style={{color: 'red', margin:"auto" , fontSize:'12px'}}>{errors}</span>: ""}
                                 </form>
                             </ModalBody>
@@ -317,9 +317,9 @@ export default class DeviceManagementComponent extends Component{
                                 <input type="text" className="form-control" name ="api_key" value={api_key.trim()} onChange={this.handleChange} placeholder="Device Key"/>
                             </Wrapper>
 
-                            <Button className="form-group col-lg-12 flexi" onClick={this.handleAddSubmit.bind(this)} 
-                                type ="submit" size="medium" variant="contained" color="primary" aria-label="add"> <AddIcon />
-                                ADD DEVICE</Button>
+                            <button className="form-group col-lg-12 btn btn-info flexi" onClick={this.handleAddSubmit.bind(this)} 
+                                type ="submit" size="medium" variant="contained" color="primary" aria-label="add">
+                                ADD DEVICE</button>
                                 {errors ? <span style={{color: 'red', margin:"auto" , fontSize:'12px'}}>{errors}</span>: ""}
                             </form>
                             </ModalBody>

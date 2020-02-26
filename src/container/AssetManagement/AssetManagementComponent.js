@@ -68,7 +68,7 @@ export default class AssetManagementComponent extends Component {
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                 localStorage.removeItem('accessToken');
                 this.setState({redirect:true})
-              }
+              } else return err
             })
 
         axios.get(`${BASE_URL}:${PORT}/${SITES_API}/`, {headers})
@@ -98,7 +98,7 @@ export default class AssetManagementComponent extends Component {
             if (err.response.data.detail === "Authentication credentials were not provided.") {
                     localStorage.removeItem('accessToken');
                     this.setState({redirect:true})
-              }
+              } else return err
         })
      }
     
@@ -234,12 +234,12 @@ export default class AssetManagementComponent extends Component {
         var hour = a.getHours();
         var min = a.getMinutes();
         var sec = a.getSeconds();
-        var time = date +' '+ month + ' '+ year + ' ' + hour + ':' + min + ':' + sec ;
+        var time = date +' '+ month +' '+ year +' '+ hour +':'+ min +':' + sec ;
         return time;
       }
 
     render() {
-        const {asset_name, asset_id, asset_brand, asset_owner_name, asset_owner_type, isOpen, data, openaddmodal, page, rowsPerPage, opendeleteModal, site, siteData, errors} = this.state;
+        const {asset_name, asset_id, asset_brand, asset_owner_name, asset_owner_type, isOpen, data, openaddmodal, page, rowsPerPage, opendeleteModal, site, siteData, errors, done} = this.state;
         if(this.state.redirect){
             return <Redirect to='/login'/>
         }
@@ -249,7 +249,7 @@ export default class AssetManagementComponent extends Component {
                 <Break/>
                     <Wrapper className="col-lg-12 boxtt">
                         <HeadingTag> Asset Management </HeadingTag>
-                    {!this.state.done ? (<Fragment><Break/><Break/><Loading/></Fragment>): (
+                    {!done ? (<Fragment><Break/><Break/><Loading/></Fragment>): (
                     <Table className='new-table'>
                         <TableHead>
                             <TableRow>
@@ -273,7 +273,7 @@ export default class AssetManagementComponent extends Component {
 
                                 var timeNow = this.timeConverter(rd.timestamp)
                                 return <TableRow tabIndex={-1} key={ i}>
-                                    <TableData>{i+1}</TableData>
+                                    <TableData>{i+1+rowsPerPage*page}</TableData>
                                     <TableData>{rd.asset_id}</TableData>
                                     <TableData>{rd.asset_name}</TableData>
                                     <TableData>{site_name}</TableData>  
@@ -288,7 +288,7 @@ export default class AssetManagementComponent extends Component {
                                         <IconButton style ={{color: "white"}} onClick={this.toggleDeleteModal.bind(this, rd.id)}>
                                             <DeleteIcon fontSize="small" />
                                         </IconButton>
-                                        <Modal  style ={{color: "black"}} isOpen={opendeleteModal} toggle={this.toggleDeleteModal} backdrop={false}>
+                                        <Modal isOpen={opendeleteModal} toggle={this.toggleDeleteModal} backdrop={false}>
                                             <ModalHeader toggle={()=>this.setState({opendeleteModal:false})}>Delete Asset <DeleteForeverIcon /></ModalHeader>
                                             <ModalBody>Are you want to delete this Asset ?</ModalBody>
                                             <ModalFooter>
@@ -357,7 +357,7 @@ export default class AssetManagementComponent extends Component {
                                         <option key={i} value={sit.id}> {sit.site_name} </option>))}
                                     </select>
                                 </Wrapper>
-                                <Button className="form-group col-lg-12 flexi" type ="submit" size="large" variant="contained" color="primary" aria-label="add"> Done</Button>
+                                <button className="form-group col-lg-12 btn btn-info flexi" type ="submit" size="large" variant="contained" color="primary" aria-label="add"> Done</button>
                                 {errors ? <span style={{color: 'red', margin:"auto" , fontSize:'12px'}}>{errors}</span>: ""}
                             </form>
                         </ModalBody>
@@ -365,7 +365,7 @@ export default class AssetManagementComponent extends Component {
 
                     {/**Add New Site */}
 
-                    <Modal style ={{color: "black"}} isOpen={openaddmodal} toggle={this.openAddModal} backdrop={false}>
+                    <Modal isOpen={openaddmodal} toggle={this.openAddModal} backdrop={false}>
                         <ModalHeader toggle={()=>this.setState({openaddmodal:false})}>Add New Asset</ModalHeader>
                         <ModalBody>
                             <form className="form-group">
@@ -403,10 +403,10 @@ export default class AssetManagementComponent extends Component {
                                     </select>
                                 </Wrapper>
                                 
-                                <Button className="form-group col-lg-12 flexi" onClick={this.handleAddSubmit.bind(this)} 
-                                type ="submit" size="medium" variant="contained" color="primary" aria-label="add"> <AddIcon />
+                                <button className="form-group col-lg-12 btn btn-info flexi" onClick={this.handleAddSubmit.bind(this)} 
+                                type ="submit" size="medium" variant="contained" color="primary" aria-label="add">
                                     ADD ASSET
-                                </Button>
+                                </button>
                                 {errors ? <span style={{color: 'red', margin:"auto" , fontSize:'12px'}}>{errors}</span>: ""}
                             </form>
                         </ModalBody>

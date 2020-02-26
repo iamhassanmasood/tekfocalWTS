@@ -25,8 +25,8 @@ export const Table = styled.table``
 export const TableRow = styled.tr``
 export const TableHead = styled.thead``
 export const TableBody = styled.tbody``
-export const TableHeadings = styled.th`font-size:12px;`
-export const TableData = styled.td`font-size:12px;`
+export const TableHeadings = styled.th`font-size:14px;`
+export const TableData = styled.td`font-size:14px;`
 export const Label = styled.label`margin: 8px 0px 8px 0px;`
 export const TabTitle = styled.span`
   padding :5px;
