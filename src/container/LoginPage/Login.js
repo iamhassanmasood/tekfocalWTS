@@ -80,7 +80,7 @@ export default class Login extends Component {
                     <Form onSubmit={this.handleSubmit} style={{marginBottom: '70px'}}>
                         <Title style={{color: 'gray'}}>Login</Title>
                         {errors ? <span style={{color: 'red'}}>{errors}</span>
-                        : <span style={{color: 'gray'}}>Please enter your username and Password to Login</span>}
+                        : <span style={{color: 'gray', fontSize:'12px'}}>Please enter your username and Password to Login</span>}
                         <Wrapper className={`form-group`} >
                             <TextFieldinput 
                                 type="text" 

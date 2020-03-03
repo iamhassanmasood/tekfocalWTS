@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, Component } from 'react'
 import MarkerIcon from '../../assets/icon/map_icon.png'
 import {BASE_URL, PORT, SITES_API, ASSET_BY_SITE, ALERTS_API, REGIONS_API, DEVICES_API} from '../../config/config.js'
 import axios from 'axios'
@@ -46,7 +46,7 @@ const MapWithAMarker = compose( withProps({
             )
         }
     })
-export default class SelectComponent extends React.PureComponent { 
+export default class SelectComponent extends Component{ 
     _isMounted = false;
         constructor(props) {
         super(props);
@@ -62,6 +62,7 @@ export default class SelectComponent extends React.PureComponent {
             regionData: [],
             asset: '',
             ID: 'ABC',
+
             options: {
             labels: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
             colors: ["#0992e1",  "#fd3550", '#7f8281',  "#1e5aa0", "#fb551d",],
@@ -77,7 +78,7 @@ export default class SelectComponent extends React.PureComponent {
               options: {
                 chart: {
                     sparkline: {
-                        enabled: true
+                        enabled: false
                   }
                 }
               }
@@ -225,11 +226,12 @@ export default class SelectComponent extends React.PureComponent {
             }
             var alertMessage = data.message;
             if(alertMessage.length>0){
-                const toastmessage = alertMessage.split(',')[0]+ " is "+ alertMessage.split(',')[1];
+                const toastmessage = alertMessage.split(',')[0]+ " is "+ alertMessage.split(',')[1]+'now.';
                 let {Alertdata} = this.state;
                 Alertdata.unshift({asset_name:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
-                this.setState({Alertdata:Alertdata, toast:toastmessage})
-                toast(this.state.toast)
+                this.setState({Alertdata, toast:toastmessage})
+                toast.success(this.state.toast)
+                setTimeout(()=> this.setState({toast:undefined}), 0)
             } else if(!data.message){
                 this.setState({toast:''})
             }
@@ -298,8 +300,19 @@ export default class SelectComponent extends React.PureComponent {
             })
       }
 
+      shouldComponentUpdate(nextProps, nextState) {
+        if(this.state.toast !== nextState.toast) {
+            return false
+       }
+       return true
+     }
+
     render() {
+
         const {siteData, site, assetData, Alertdata, asset, dataBySiteId, pag, rowsPerPag, done, loading} = this.state;
+        /**This console will be remove after sort out toastism */
+        console.log(this.state.toast, "Check")
+
         const sites = siteData.map((site, i)=>(
             <option key= {i} value={site.id}> {site.site_name} </option>))
         const assets = assetData.map((ast, i)=>(
@@ -372,7 +385,7 @@ export default class SelectComponent extends React.PureComponent {
                 AlertTimeNow = timeConverter(alert.timestamp);
             }
         return <tr key={i}>
-            <td>{i+1}</td>
+            <td>{i+1+rowsPerPag*pag}</td>
             <td>{alert.event}</td>
             <td>{alert.asset_name}</td>
             <td>{AlertTimeNow}</td>
@@ -586,7 +599,7 @@ export default class SelectComponent extends React.PureComponent {
                             </table>
                                 {Alertdata.length>3 ?<TablePagination 
                                 style={{ color:'white',  backgroundColor:'#1b1b1b'}}
-                                rowsPerPageOptions={[3, 5, 10, 20]}
+                                rowsPerPageOptions={[3, 5, 10, 15]}
                                 component="div"
                                 count={Alertdata.length}
                                 rowsPerPage={rowsPerPag}
@@ -597,7 +610,15 @@ export default class SelectComponent extends React.PureComponent {
                                 />:''}
                         </BoxWrapper>
                     </Wrapper>
-                    <ToastContainer />
+                    <ToastContainer position="top-right"
+                        autoClose={2000}
+                        hideProgressBar
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnVisibilityChange
+                        draggable
+                        pauseOnHover/>
                     <Wrapper className="col-lg-12">
                         <Wrapper className='toxt'>
                             <footer>© 2020 Cellsenal, All rights reserved</footer>

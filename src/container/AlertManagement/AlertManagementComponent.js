@@ -1,11 +1,11 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment } from 'react'
 import TablePagination from '@material-ui/core/TablePagination';
 import {Wrapper, Table, TableRow, TableBody, TableData, TableHead, TableHeadings, HeadingTag, Break} from '../Dashboard/StyledCompo';
 import {BASE_URL, PORT, ALERTS_API} from '../../config/config'
 import axios from 'axios'; import { Redirect } from "react-router-dom";
 import Loading from '../Loading/Loading';
 
-export default class AlertManagementComponent extends Component{
+export default class AlertManagementComponent extends React.PureComponent{
     _isMounted= false
     state = {
         Alertdata: [],

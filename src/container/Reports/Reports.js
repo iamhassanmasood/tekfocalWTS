@@ -179,7 +179,7 @@ export default class Reports extends Component {
                                 </Wrapper>
                                 
                                 <Wrapper className="col-lg-3 flexi">
-                                    <button className="form-control btn btn-info" id="seli" onClick={this.handleSubmit}>Generate Report</button>
+                                    <button className="form-control btn btn-info" id="seli" onClick={this.handleSubmit}>Get Report</button>
                                 </Wrapper>
                                     {errors? <p className="flexi" style={{color:'red'}}>{errors}</p>:''}
                                 <Break/>

@@ -4,7 +4,7 @@ export const TextFieldinput = styled.input`
 `
 
 export const FormWrapper = styled.div`
-    width: 611px;
+    // width: 611px;
     border-radius: 2rem;
     box-shadow: var(--bocShadow);
     background: var(--mainbgcolor);

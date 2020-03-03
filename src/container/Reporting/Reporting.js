@@ -6,15 +6,16 @@ import TablePagination from '@material-ui/core/TablePagination';
 import Loading from '../Loading/Loading';
 import Chart from 'react-apexcharts';
 import ReactApexChart from 'react-apexcharts';
-
+const date = new Date()
 export default class Reporting extends Component {
+
     _isMounted = false
     constructor(props){
         super(props);
         this.state={
             siteData:[], redirect:false, siteValue:'', errors:'', isSubmitted:false,
             fromDate:'', toValue:'', reportData:undefined, rowsPerPage: 15, options:undefined,
-            page: 0, count:0, done: false,
+            page: 0, count:0, done: false, week:undefined, month:undefined, daily:'daily', reportingData:[],totalData:undefined,
             optionPie: {
                 labels: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
                 colors: ["#0992e1",  "#fd3550", '#7f8281',  "#1e5aa0", "#fb551d",],
@@ -98,12 +99,13 @@ export default class Reporting extends Component {
       }
   
     handleEmpty=()=>{
-        this.setState({fromDate:'', options:''})
+        this.setState({fromDate:'', options:undefined})
       }
     handleChange=()=>{
         this.handleEmpty()
         var e = document.getElementById("site");
         var result = e.options[e.selectedIndex].value;
+        alert(result)
         this.setState({
             siteValue:result, errors:undefined
         })
@@ -125,34 +127,20 @@ export default class Reporting extends Component {
     
     handleSubmit=(e)=>{
         e.preventDefault();
-        this.setState({ isSubmitted: true, errors:undefined });
-        const { isValid, errors } = ReportValidation(this.state);
-        if (!isValid) {
-          this.setState({ errors, isSubmitted: false });
-          return false;
-        } else {
+        // this.setState({ isSubmitted: true, errors:undefined });
+        // const { isValid, errors } = ReportValidation(this.state);
+        // if (!isValid) {
+        //   this.setState({ errors, isSubmitted: false });
+        //   return false;
+        // } else {
         var token = localStorage.getItem('accessToken');
         var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-        const {siteValue, fromDate, options}=this.state;
-        const fromTime = (new Date(fromDate).getTime())/1000;
-        let body = "site_id="+siteValue+"&from_time="+fromTime+"&to_time="+options;
-        axios.post(`${BASE_URL}:${PORT}/${ReportAPI}`, body, {headers})
+        axios.get(`https://wts.cs-satms.com:8443/reporting?report_type=daily&site_id=44`, {headers})
         .then(res=>{
-            if(res.status === 200){
-                var arr = [];
-                for(var i=0;i<res.data.length;i++){
-                    arr.unshift({site_name: res.data[i][0], asset_name: res.data[i][1], event: res.data[i][2]  })
-                }
-                this.setState({
-                    reportData:arr,
-                    isSubmitted: true,
-                    errors:undefined,
-                    count:res.data.length
-                })
-            }
+           this.setState({reportingData:res.data, totalData:res.data.length})
         }).catch(err=> err)
             
-       };
+    //    };
     }
 
     handleChangePage = (event, newPage) => {
@@ -165,12 +153,16 @@ export default class Reporting extends Component {
       };
 
     render() {
-        const{siteValue, siteData, fromDate, errors, reportData, page, rowsPerPage, count, done} = this.state;
+        const{siteValue, siteData, fromDate, errors, reportData, page, rowsPerPage, count, done, month, week, reportingData, totalData} = this.state;
         const sitesData = siteData.map((item, i)=>(
             <option key={i} value={item.id}>{item.site_name}</option>
             ))
 
         const finalPie = [400, 430, 448, 470, 540];
+        
+        if(totalData){
+            console.log(reportingData)
+        }
         return (
             <Fragment>
                 <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
@@ -179,18 +171,22 @@ export default class Reporting extends Component {
                     <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
                         <form className="form-group"> 
                             <Wrapper className="row">
-                                <Wrapper className="col-lg-3">
+                                <Wrapper className="col-lg-2">
                                     <label>Select Site:</label>
                                     <select className="form-control" id="site" name="site" onChange={this.handleChange} value={siteValue}>
-                                        <option  className="brave" value="" disabled defaultValue>Select Site</option>
+                                        <option className="brave" value="" disabled defaultValue>Select Site</option>
                                             {sitesData}
                                     </select>
                                 </Wrapper>
                             
-                                
-                                <Wrapper className="col-lg-3">
+                                <Wrapper className="col-lg-2">
                                     <label> Date:</label>
-                                    <input className="form-control" type='date' name='fromDate' onChange={this.handleChangeDate} value={fromDate}/>
+                                    <input className="form-control" id="month" type="month" name='month' max={date} onChange={this.handleChangeDate} value={month}/>
+                                </Wrapper>
+
+                                <Wrapper className="col-lg-2">
+                                    <label> Date:</label>
+                                    <input className="form-control" id="week" type="week" name='week' onChange={this.handleChangeDate} value={week}/>
                                 </Wrapper>
 
                                 <Wrapper className="col-lg-3">
@@ -219,8 +215,9 @@ export default class Reporting extends Component {
                                 <ReactApexChart options={this.state.optionsBar} series={this.state.series} type="bar" height={416}/>
                             </Wrapper>
                         </Wrapper>
-
                     </Wrapper>
+
+                    <Break/>
 
                     {!done?<Wrapper className="col-lg-12">
                         <Table className="new-table" >

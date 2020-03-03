@@ -1,220 +1,228 @@
 body {
-    margin: 0px;
-    padding: 0px;
-    /* background-color: #1b1b1b; */
-    font-family: 'Gill Sans', sans-serif !important;
-    font-size: 14px;
-    /* overflow-y: hidden;
-    overflow-x: hidden; */
-    background-image: url('./assets/images/LoginBackGround.jpg');
-    color: white;
-    /* opacity: 2%; */
-  }
-  ::-webkit-scrollbar {
-    width: 5px;
-  }
+  margin: 0px;
+  padding: 0px;
+  /* background-color: #1b1b1b; */
+  font-family: 'Gill Sans', sans-serif !important;
+  font-size: 12px;
+  /* overflow-y: hidden;
+  overflow-x: hidden; */
+  background-image: url('./assets/images/LoginBackGround.jpg');
+  color: white;
+  /* opacity: 2%; */
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px #1b1b1b; 
+  border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #1b1b1b; 
+  border-radius: 10px;
   
-  /* Track */
-  ::-webkit-scrollbar-track {
-    box-shadow: inset 0 0 5px #1b1b1b; 
-    border-radius: 10px;
-  }
-   
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #1b1b1b; 
-    border-radius: 10px;
-    
-  }
-  
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #1b1b1b; 
-  }
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #1b1b1b; 
+}
 
 
-  a {
-    display: block;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-  }
-   
-  
-  .sidebar a:hover {
-    background-color: #023e58;
-    color: white;
-  }
-  
-  .apna-table{
-    width: 100%;
-    color: white;
-    border: 1px solid #3f4142;
-    background-color:#1b1b1b;
-    text-align: center;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .apna-table thead {
-    background-color:#023e58;
-  }
-  
-  .apna-table th, td{
-    border-bottom: 1px solid #3f4142;
-    font-size: 14px;
-  }
-  .apna-table tbody tr:hover{
-    background-color:#6699cc;
-    color: white;
-    /* font-size: 18px; */
-    transition: 15;
-  }
-  .modal-dialog{
-    color: black;
-    background-size: cover;
-    height: 100vh;
-    background-position: center;
-    margin-top: 115px;
-  }
-  .table{
-    color: white !important;
-    background-color: #1b1b1b !important;
-    /* border: 1px solid #3f4142 !important; */
-  }
-  .table thead {
-    background-color:#023e58;
-  }
-  .table thead :hover {
-    background-color:#023e58;
-  }
+a {
+  display: block;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+}
+ 
 
-  .new-table{
-    width: 100%;
-    height:100%;
-    color: white;
-    border-bottom: 1px solid #3f4142;
-    background-color:#1b1b1b;
-    text-align: center;
-    /* margin-top: 10px;
-    margin-bottom: 10px; */
-  }
-  
-  .new-table thead {
-    background-color:#023e58;
-  }
-  .new-table th{
-    font-size: 14px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
+.sidebar a:hover {
+  background-color: #023e58;
+  color: white;
+}
 
-  .new-table th, td{
-    border-bottom: 1px solid #3f4142;
-    font-size: 14px;
-  }
-  .new-table tbody tr:hover{
-    background-color:#6699cc;
-    color: white;
-    /* font-size: 18px; */
-    transition: 15;
-  }
-  .new-table tr:nth-child(even){background-color: #3f4143}
-  .form-group input{
-    border-radius: 2px !important;
-    font-size: 14px !important;
-  }
-  .form-group select{
-    border-radius: 2px !important;
-    font-size: 14px !important;
-  }
-  .form-group label{
-   padding-left: 5px !important;
-  }
-  .form-group button{
-    border-radius: 2px !important;
-    margin-top: 20px !important;
-    font-size: 14px !important;
-  }
+
+.apna-box{
+  width: 100%;
+  border-bottom: 0.5px solid #3f4142;
+  background-color:#1b1b1b;
+  color: white;
+  text-indent: 0.8rem;
+}
+.apna-table{
+  width: 100%;
+  color: white;
+  border: 1px solid #3f4142;
+  background-color:#1b1b1b;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.apna-table thead {
+  background-color:#023e58;
+}
+
+.apna-table th, td{
+  border-bottom: 1px solid #3f4142;
+  font-size: 14px;
+}
+.apna-table tbody tr:hover{
+  background-color:#6699cc;
+  color: white;
+  /* font-size: 18px; */
+  transition: 15;
+}
+.modal-dialog{
+  color: black;
+  background-size: cover;
+  height: 100vh;
+  background-position: center;
+  margin-top: 115px;
+}
+.table{
+  color: white !important;
+  background-color: #1b1b1b !important;
+  /* border: 1px solid #3f4142 !important; */
+}
+.table thead {
+  background-color:#023e58;
+}
+.table thead :hover {
+  background-color:#023e58;
+}
+
+.new-table{
+  width: 100%;
+  height:100%;
+  color: white;
+  border-bottom: 1px solid #3f4142;
+  background-color:#1b1b1b;
+  text-align: center;
+  /* margin-top: 10px;
+  margin-bottom: 10px; */
+}
+
+.new-table thead {
+  background-color:#023e58;
+}
+.new-table th{
+  font-size: 14px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.new-table th, td{
+  border-bottom: 1px solid #3f4142;
+  font-size: 14px;
+}
+.new-table tbody tr:hover{
+  background-color:#6699cc;
+  color: white;
+  /* font-size: 18px; */
+  transition: 15;
+}
+.new-table tr:nth-child(even){background-color: #3f4143}
+.form-group input{
+  border-radius: 2px !important;
+  font-size: 14px !important;
+}
+.form-group select{
+  border-radius: 2px !important;
+  font-size: 14px !important;
+}
+.form-group label{
+ padding-left: 5px !important;
+}
+.form-group button{
+  border-radius: 2px !important;
+  margin-top: 20px !important;
+  font-size: 14px !important;
+}
 .flexi{
-  display: flex;
-  margin: auto;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
+display: flex;
+margin: auto;
+align-items: center;
+justify-content: center;
+align-content: center;
 }
 .gool{
-  bottom: 0;
-  position: fixed;
-  right: 10px;
+bottom: 0;
+position: fixed;
+right: 10px;
 }
 
 .boxt{
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
+justify-content: center;
+align-items: center;
+border-radius: 5px;
 }
 .boxtt{
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  border-radius: 5px;
+justify-content: center;
+align-items: center;
+text-align: center;
+border-radius: 5px;
 }
 
 
 .asterisk_input::after {
-  content:" *"; 
-  color: #e32;
-  position: absolute;  
-  font-size: 14px; 
+content:" *"; 
+color: #e32;
+position: absolute;  
+font-size: 12px; 
 }
 .toxt{
-  text-align: center;
-  color:gray;
-  bottom:0.3rem;
+text-align: center;
+color:gray;
+bottom:0.3rem;
 }
 .className{
-  background-image: url('./assets/images/LoginBackGround.jpg');
+background-image: url('./assets/images/LoginBackGround.jpg');
 }
 .MuiTablePagination-selectIcon{
-  color:white !important;
-  font-size: 14px; 
+color:white !important;
+font-size: 14px; 
 }
 .MuiTablePagination-menuItem{
-  color:black !important;
-  font-size: 14px !important;
+color:black !important;
+font-size: 14px !important;
 }
 .MuiTablePagination-menuItem:hover{
-  background-color:#023e58 !important;
-  color:white !important;
-  font-size: 14px !important;
+background-color:#023e58 !important;
+color:white !important;
+font-size: 14px !important;
 }
 .form-control{
-  font-size: 14px !important;
+font-size: 14px !important;
 }
 .main-nav{
-  text-decoration: none;
+text-decoration: none;
 }
 .main-nav:hover div{
-  color: #023e58 !important;
-  text-decoration: none;
+color: #023e58 !important;
+text-decoration: none;
 }
 .main-nav-active div{
-  color: #09acf3 !important;
-  text-decoration: none;
+color: #09acf3 !important;
+text-decoration: none;
 }
 .main-nav:hover{
-  text-decoration: none;
+text-decoration: none;
 }
 .modal-header{
-  background-color: #023e58 !important;
-  color:white !important;
+background-color: #023e58 !important;
+color:white !important;
 }
 .close{
-  color:white !important;
+color:white !important;
 }
 .modal{
-  background: rgba(0, 0, 0, 0.6) !important;
+background: rgba(0, 0, 0, 0.6) !important;
 }
 .apexcharts-canvas{
   color: black !important;
