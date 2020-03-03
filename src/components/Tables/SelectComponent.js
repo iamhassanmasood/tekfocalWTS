@@ -430,31 +430,31 @@ export default class SelectComponent extends Component{
                         <Wrapper className="adjustment">
                             <main className="mycards">
                                 <Wrapper className="mycontent">
-                                    <Wrapper className="col-sm-8"><h1 style={{color:'#0992e1'}}>{ru.length}</h1><span><p>Registered Undiscovered</p></span></Wrapper>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#0992e1'}}>{ru.length}</h1><span><p style={{fontSize:'14px'}}>Registered Undiscovered</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"Registered Undiscovered"} src ={RegisteredUnDiscoverd}/></Wrapper>
                                 </Wrapper>
 
 
                                 <Wrapper className="mycontent">
-                                    <Wrapper className="col-sm-8"><h1 style={{color:'#fd3550'}}>{rd.length}</h1><span><p>Registered Discovered</p></span></Wrapper>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#fd3550'}}>{rd.length}</h1><span><p style={{fontSize:'14px'}}>Registered Discovered</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"Registered Discovered"} src ={RegisteredDiscoverd}/></Wrapper>
                                 </Wrapper>
                                 
                                 
                                 <Wrapper className="mycontent">    
-                                    <Wrapper className="col-sm-8"><h1 style={{color:'#7f8281'}}>{ua.length}</h1><span><p>UnAuthorized Entry</p></span></Wrapper>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#7f8281'}}>{ua.length}</h1><span><p style={{fontSize:'14px'}}>UnAuthorized Entry</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"UnAuthorized Entry"} src ={UnAuthorized}/></Wrapper>
                                 </Wrapper>
                                 
                                 
                                 <Wrapper className="mycontent">
-                                    <Wrapper className="col-sm-8"><h1 style={{color:'#1e5aa0'}}>{st.length}</h1><span><p>Stolen</p></span></Wrapper>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#1e5aa0'}}>{st.length}</h1><span><p style={{fontSize:'14px'}}>Stolen</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"Stolen"} src ={Stolen}/></Wrapper>
                                 </Wrapper>
                                 
                                 
                                 <Wrapper className="mycontent">
-                                    <Wrapper className="col-sm-8"><h1 style={{color:'#fb551d'}}>{it.length}</h1><span><p>In Transit</p></span></Wrapper>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#fb551d'}}>{it.length}</h1><span><p style={{fontSize:'14px'}}>In Transit</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"In Transit"} src ={InTransit}/></Wrapper>
                                 </Wrapper>
                             </main>

@@ -1,21 +1,20 @@
 import React, { Component , Fragment} from 'react'
 import {Wrapper, Table, TableRow, TableBody, TableData, TableHead, TableHeadings, HeadingTag, Break} from '../Dashboard/StyledCompo';
-import {BASE_URL, PORT, SITES_API, ReportAPI} from '../../config/config.js'
+import {BASE_URL, PORT, SITES_API, maxdate} from '../../config/config.js'
 import axios from 'axios'; import ReportValidation from './validator'
 import TablePagination from '@material-ui/core/TablePagination';
 import Loading from '../Loading/Loading';
 import Chart from 'react-apexcharts';
 import ReactApexChart from 'react-apexcharts';
-const date = new Date()
+
 export default class Reporting extends Component {
 
     _isMounted = false
     constructor(props){
         super(props);
         this.state={
-            siteData:[], redirect:false, siteValue:'', errors:'', isSubmitted:false,
-            fromDate:'', toValue:'', reportData:undefined, rowsPerPage: 15, options:undefined,
-            page: 0, count:0, done: false, week:undefined, month:undefined, daily:'daily', reportingData:[],totalData:undefined,
+            siteData:[], redirect:false, siteValue:'', errors:'', isSubmitted:false, toValue:'', reportData:undefined, rowsPerPage: 15,
+            page: 0, count:0, done: false, week:'', month:'', date:'', daily:'daily', timeperiod:'daily', reportingData:[],totalData:undefined,
             optionPie: {
                 labels: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
                 colors: ["#0992e1",  "#fd3550", '#7f8281',  "#1e5aa0", "#fb551d",],
@@ -99,48 +98,53 @@ export default class Reporting extends Component {
       }
   
     handleEmpty=()=>{
-        this.setState({fromDate:'', options:undefined})
+        this.setState({errors:undefined})
       }
     handleChange=()=>{
         this.handleEmpty()
         var e = document.getElementById("site");
         var result = e.options[e.selectedIndex].value;
-        alert(result)
         this.setState({
-            siteValue:result, errors:undefined
+            siteValue:result, errors:undefined,
         })
       }
-      handleChangeValue=(e)=>{
-        let value = e.target.value;
+    handleChangeValue=(e)=>{
+        this.handleEmpty()
         this.setState({
-            options:value
+            timeperiod:e.target.value
         })
       }
     handleChangeDate=(e)=>{
-        let name=e.target.name;
-        let value = e.target.value;
+        this.handleEmpty()
         this.setState({
-            [name]:value
+            [e.target.name]:e.target.value
         })
-
       }
     
     handleSubmit=(e)=>{
         e.preventDefault();
-        // this.setState({ isSubmitted: true, errors:undefined });
-        // const { isValid, errors } = ReportValidation(this.state);
-        // if (!isValid) {
-        //   this.setState({ errors, isSubmitted: false });
-        //   return false;
-        // } else {
+        this.setState({ isSubmitted: true, errors:undefined });
+        const { isValid, errors } = ReportValidation(this.state);
+        if (!isValid) {
+         this.setState({ errors, isSubmitted: false });
+          return false;
+        } else {
         var token = localStorage.getItem('accessToken');
         var headers =  {'Content-Type' : 'application/x-www-form-urlencoded', 'Authorization':'Bearer '+token}
-        axios.get(`https://wts.cs-satms.com:8443/reporting?report_type=daily&site_id=44`, {headers})
+        var date;
+        if(this.state.timeperiod === 'daily'){
+            date = this.state.date
+        } else if (this.state.timeperiod === 'weekly'){
+            date = this.state.week
+        } else if(this.state.timeperiod === 'monthly'){
+            date = this.state.month
+        }
+        axios.get(`https://wts.cs-satms.com:8443/reporting?report_type=${this.state.timeperiod}&site_id=${this.state.siteValue}&date=${date}`, {headers})
         .then(res=>{
            this.setState({reportingData:res.data, totalData:res.data.length})
         }).catch(err=> err)
             
-    //    };
+       };
     }
 
     handleChangePage = (event, newPage) => {
@@ -153,16 +157,13 @@ export default class Reporting extends Component {
       };
 
     render() {
-        const{siteValue, siteData, fromDate, errors, reportData, page, rowsPerPage, count, done, month, week, reportingData, totalData} = this.state;
+        const{siteValue, siteData, errors, reportData, page, rowsPerPage, count, done, month, week, date, reportingData, timeperiod} = this.state;
         const sitesData = siteData.map((item, i)=>(
             <option key={i} value={item.id}>{item.site_name}</option>
             ))
 
         const finalPie = [400, 430, 448, 470, 540];
-        
-        if(totalData){
-            console.log(reportingData)
-        }
+        console.log(date)
         return (
             <Fragment>
                 <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
@@ -171,34 +172,48 @@ export default class Reporting extends Component {
                     <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
                         <form className="form-group"> 
                             <Wrapper className="row">
-                                <Wrapper className="col-lg-2">
+                                <Wrapper className="col-lg-3">
                                     <label>Select Site:</label>
                                     <select className="form-control" id="site" name="site" onChange={this.handleChange} value={siteValue}>
                                         <option className="brave" value="" disabled defaultValue>Select Site</option>
                                             {sitesData}
                                     </select>
                                 </Wrapper>
-                            
-                                <Wrapper className="col-lg-2">
-                                    <label> Date:</label>
-                                    <input className="form-control" id="month" type="month" name='month' max={date} onChange={this.handleChangeDate} value={month}/>
-                                </Wrapper>
 
-                                <Wrapper className="col-lg-2">
-                                    <label> Date:</label>
-                                    <input className="form-control" id="week" type="week" name='week' onChange={this.handleChangeDate} value={week}/>
-                                </Wrapper>
 
                                 <Wrapper className="col-lg-3">
                                     <Wrapper style={{marginTop:'2rem', display:'flex', justifyContent:'space-evenly'}}>
-                                        <label className="radio-inline"><input type='radio' onChange={this.handleChangeValue} id="daily" name="type" value={1}/> Daily</label>
-                                        <label className="radio-inline"><input type='radio' onChange={this.handleChangeValue} id="weekly" name="type" value={7}/> Weekly</label>
-                                        <label className="radio-inline"><input type='radio' onChange={this.handleChangeValue} id="monthly" name="type" value={30}/> Monthly</label>
+                                        <label className="radio-inline"><input type='radio' name='timeperiod' onChange={this.handleChangeValue} id="daily" checked={this.state.timeperiod === "daily"} value="daily"/> Daily</label>
+                                        <label className="radio-inline"><input type='radio' name='timeperiod' onChange={this.handleChangeValue} id="weekly" checked={this.state.timeperiod === "weekly"} value="weekly"/> Weekly</label>
+                                        <label className="radio-inline"><input type='radio' name='timeperiod' onChange={this.handleChangeValue} id="monthly" checked={this.state.timeperiod === "monthly"} value="monthly"/> Monthly</label>
                                     </Wrapper>
                                 </Wrapper>
+
+                                
+                                {timeperiod === "daily"?
+                                <Wrapper className="col-lg-3">
+                                    <label> Choose Date:</label>
+                                    <input className="form-control" id="date" type="date" name='date' max={maxdate} onChange={this.handleChangeDate} value={date}/>
+                                </Wrapper>:''}
+                                
+                                {timeperiod === "weekly"?
+                                <Wrapper className="col-lg-3">
+                                    <label> Choose Week:</label>
+                                    <input className="form-control" id="week" type="week" name='week' onChange={this.handleChangeDate} value={week}/>
+                                </Wrapper>:''}
+
+                                {timeperiod === "monthly"?
+                                <Wrapper className="col-lg-3">
+                                    <label> Choose Month:</label>
+                                    <input className="form-control" id="month" type="month" name='month' onChange={this.handleChangeDate} value={month}/>
+                                </Wrapper>:''}
+
+                                {errors ? <Wrapper className="col-lg-3">
+                                    <button className="form-control btn btn-danger" id="seli" disabled>Generate Report</button>
+                                </Wrapper>:
                                 <Wrapper className="col-lg-3">
                                     <button className="form-control btn btn-info" id="seli" onClick={this.handleSubmit}>Generate Report</button>
-                                </Wrapper>
+                                </Wrapper>}
                                 </Wrapper>
                                 
                                     {errors? <p className="flexi" style={{color:'red'}}>{errors}</p>:''}
