@@ -14,7 +14,10 @@ export default class Reporting extends Component {
         super(props);
         this.state={
             siteData:[], redirect:false, siteValue:'', errors:'', isSubmitted:false, toValue:'', reportData:undefined, rowsPerPage: 15,
-            page: 0, count:0, done: false, week:'', month:'', date:'', daily:'daily', timeperiod:'daily', reportingData:[],totalData:undefined,
+            page: 0, count:0, done: false, week:'', month:'', date:'', daily:'daily', timeperiod:'', reportingData:[],totalData:undefined,
+
+            stolen:'', intransit:'', registered_discovered:'', registered_undiscovered:'', unauthorized:'', 
+
             optionPie: {
                 labels: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
                 colors: ["#0992e1",  "#fd3550", '#7f8281',  "#1e5aa0", "#fb551d",],
@@ -38,7 +41,7 @@ export default class Reporting extends Component {
             },
             series: [{
                 name:'Asset',
-                data: [400, 430, 448, 470, 540]
+                data: [400, 3, 448, 470, 540]
               }],
             optionsBar: {
                 plotOptions: {
@@ -97,27 +100,22 @@ export default class Reporting extends Component {
         this._isMounted = false;
       }
   
-    handleEmpty=()=>{
-        this.setState({errors:undefined})
-      }
     handleChange=()=>{
-        this.handleEmpty()
         var e = document.getElementById("site");
         var result = e.options[e.selectedIndex].value;
         this.setState({
-            siteValue:result, errors:undefined,
+            siteValue:result, errors:undefined, timeperiod:undefined
         })
       }
     handleChangeValue=(e)=>{
-        this.handleEmpty()
         this.setState({
-            timeperiod:e.target.value
+            timeperiod:e.target.value,
+            week:'', month:'', date:'', errors:undefined,
         })
       }
     handleChangeDate=(e)=>{
-        this.handleEmpty()
         this.setState({
-            [e.target.name]:e.target.value
+            [e.target.name]:e.target.value, errors:undefined,
         })
       }
     
@@ -141,7 +139,14 @@ export default class Reporting extends Component {
         }
         axios.get(`https://wts.cs-satms.com:8443/reporting?report_type=${this.state.timeperiod}&site_id=${this.state.siteValue}&date=${date}`, {headers})
         .then(res=>{
-           this.setState({reportingData:res.data, totalData:res.data.length})
+           this.setState({
+                reportingData:res.data, totalData:res.data.length,
+                stolen : res.data.filter(item=>item.state_type.type === "stolen" ),
+                intransit : res.data.filter(item=>item.state_type.type === "intransit" ),
+                registered_undiscovered : res.data.filter(item=>item.state_type.type === "registered_undiscovered" ),
+                unauthorized : res.data.filter(item=>item.state_type.type === "unauthorized" ),
+                registered_discovered : res.data.filter(item=>item.state_type.type === "registered_discovered" ),
+            })
         }).catch(err=> err)
             
        };
@@ -157,20 +162,25 @@ export default class Reporting extends Component {
       };
 
     render() {
-        const{siteValue, siteData, errors, reportData, page, rowsPerPage, count, done, month, week, date, reportingData, timeperiod} = this.state;
+        const{siteValue, siteData, errors, reportData, page, rowsPerPage, count, done, month, week, date, reportingData, totalData, timeperiod, 
+        stolen, intransit, registered_discovered, registered_undiscovered, unauthorized} = this.state;
         const sitesData = siteData.map((item, i)=>(
             <option key={i} value={item.id}>{item.site_name}</option>
             ))
 
-        const finalPie = [400, 430, 448, 470, 540];
-        console.log(date)
+        if(totalData){
+            var finalPie = [registered_undiscovered[0].count, registered_discovered[0].count, unauthorized[0].count, stolen[0].count, intransit[0].count];
+        }
+        var emptyPie = [0, 0, 0, 0, 0] 
+        console.log(totalData)
         return (
             <Fragment>
                 <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
                     <HeadingTag className="flexi">WTS Reporting</HeadingTag>
                     {done? <Fragment><Break/><Break/><Break/><Loading/></Fragment>:
-                    <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
-                        <form className="form-group"> 
+                    <Fragment>
+                        <Break/>
+                        <form className="form-group col-lg-12"> 
                             <Wrapper className="row">
                                 <Wrapper className="col-lg-3">
                                     <label>Select Site:</label>
@@ -180,14 +190,14 @@ export default class Reporting extends Component {
                                     </select>
                                 </Wrapper>
 
-
+                                {siteValue?
                                 <Wrapper className="col-lg-3">
                                     <Wrapper style={{marginTop:'2rem', display:'flex', justifyContent:'space-evenly'}}>
                                         <label className="radio-inline"><input type='radio' name='timeperiod' onChange={this.handleChangeValue} id="daily" checked={this.state.timeperiod === "daily"} value="daily"/> Daily</label>
                                         <label className="radio-inline"><input type='radio' name='timeperiod' onChange={this.handleChangeValue} id="weekly" checked={this.state.timeperiod === "weekly"} value="weekly"/> Weekly</label>
                                         <label className="radio-inline"><input type='radio' name='timeperiod' onChange={this.handleChangeValue} id="monthly" checked={this.state.timeperiod === "monthly"} value="monthly"/> Monthly</label>
                                     </Wrapper>
-                                </Wrapper>
+                                </Wrapper>:''}
 
                                 
                                 {timeperiod === "daily"?
@@ -219,11 +229,13 @@ export default class Reporting extends Component {
                                     {errors? <p className="flexi" style={{color:'red'}}>{errors}</p>:''}
                                 <Break/>
                         </form>
-                    </Wrapper>}
+                    </Fragment>}
                     <Wrapper className='col-lg-12'>
                         <Wrapper className='row'>
                             <Wrapper className = 'col-lg-5' style={{marginRight:0, height :`450px`}}>
+                                {totalData? 
                                 <Chart options={this.state.optionPie} series={finalPie} type="pie" width={`100%`} height={`100%`} />
+                                :<Chart options={this.state.optionPie} series={emptyPie} type="pie" width={`100%`} height={`100%`} />}
                             </Wrapper>
 
                             <Wrapper className='col-lg-7' id="chart">
@@ -255,7 +267,7 @@ export default class Reporting extends Component {
                                     :undefined}
                             </TableBody>
                         </Table>
-                        {reportData===undefined ? <p className="flexi" style={{color:'red'}}> No Data Found</p>: count ===0?<p className="flexi" style={{color:'red'}}> No Data Available Right Now</p>: ''}
+                        {totalData===undefined ? <p className="flexi" style={{color:'red'}}> No Data Found</p>: totalData ===0?<p className="flexi" style={{color:'red'}}> No Data Available Right Now</p>: ''}
 
                         {count>15?
                         <TablePagination 
