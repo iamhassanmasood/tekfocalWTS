@@ -28,6 +28,7 @@ export default class AlertManagementComponent extends React.PureComponent{
             var offset = this.state.count-100; 
         axios.get(`${BASE_URL}:${PORT}/${ALERTS_API}/?limit=100&offset=${offset}`, {headers})
         .then(res=> {
+            console.log(res.data.results)
         if (res.status===200) {
            this.setState({
             Alertdata: res.data.results,
@@ -65,7 +66,7 @@ export default class AlertManagementComponent extends React.PureComponent{
             var alertMessage = data.message;
             if(alertMessage.length>0){
                 let {Alertdata} = this.state;
-                Alertdata.unshift({asset_name:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
+                Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
                 this.setState({Alertdata:Alertdata})
             }
           }
@@ -113,7 +114,8 @@ export default class AlertManagementComponent extends React.PureComponent{
     return <TableRow key={alt.id} style={{height:'30px'}}>
         <TableData >{i+1+rowsPerPage*page}</TableData>
         <TableData >{alt.event}</TableData>
-        <TableData>{alt.asset_name}</TableData>
+        <TableData>{alt.site.name}</TableData>
+        <TableData>{alt.asset}</TableData>
         <TableData>{AlertTimeNow}</TableData>
         </TableRow>})
 
@@ -131,6 +133,7 @@ export default class AlertManagementComponent extends React.PureComponent{
                                 <TableRow>
                                     <TableHeadings>Sr#</TableHeadings>
                                     <TableHeadings>Events</TableHeadings>
+                                    <TableHeadings>Site</TableHeadings>
                                     <TableHeadings>Asset</TableHeadings>
                                     <TableHeadings>Created At</TableHeadings>
                                 </TableRow>

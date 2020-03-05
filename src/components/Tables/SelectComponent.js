@@ -145,9 +145,10 @@ export default class SelectComponent extends Component{
             var offset = this.state.count-100; 
         axios.get(`${BASE_URL}:${PORT}/${ALERTS_API}/?limit=100&offset=${offset}`, {headers})
         .then(res=> {
-        if (res.status === 200) {
-            var alertsData = res.data.results.map(item=>{
-                return {event: item.event, timestamp: item.timestamp, asset_name: item.asset_name}
+            console.log(res)
+            if (res.status === 200) {
+                var alertsData = res.data.results.map(item=>{
+                    return {event: item.event, timestamp: item.timestamp, asset: item.asset, site:item.site.name}
             })
            this.setState({
             Alertdata: alertsData.sort((a, b)=> b.timestamp-a.timestamp),
@@ -228,7 +229,7 @@ export default class SelectComponent extends Component{
             if(alertMessage.length>0){
                 const toastmessage = alertMessage.split(',')[0]+ " is "+ alertMessage.split(',')[1]+'now.';
                 let {Alertdata} = this.state;
-                Alertdata.unshift({asset_name:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
+                Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
                 this.setState({Alertdata, toast:toastmessage})
                 toast.success(this.state.toast)
                 setTimeout(()=> this.setState({toast:undefined}), 0)
@@ -307,11 +308,24 @@ export default class SelectComponent extends Component{
        return true
      }
 
+     timeConverter(UNIX_timestamp){
+        var a = new Date(UNIX_timestamp * 1000);
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var time = date +'-'+ month + '-'+ year + ' ' + hour + ':' + min;
+        return time;
+      }
+
     render() {
 
         const {siteData, site, assetData, Alertdata, asset, dataBySiteId, pag, rowsPerPag, done, loading} = this.state;
-        /**This console will be remove after sort out toastism */
+        /**This console will be remove after sort out toastism 
         console.log(this.state.toast, "Check")
+        console.log(Alertdata, "Check alert Data")*/
 
         const sites = siteData.map((site, i)=>(
             <option key= {i} value={site.id}> {site.site_name} </option>))
@@ -337,7 +351,7 @@ export default class SelectComponent extends Component{
         var AssetInfoArr = [];
           for(let i=0; i<assetStatsArr.length; i++){
             AssetInfoArr.unshift({
-                asset_id: assetStatsArr[i][0], asset_name :assetStatsArr[i][1], 
+                asset_id: assetStatsArr[i][0], asset :assetStatsArr[i][1], 
                 asset_brand:assetStatsArr[i][2], asset_owner_name: assetStatsArr[i][3], 
                 asset_owner_type :assetStatsArr[i][4],battery:assetStatsArr[i][5], 
                 temperature:assetStatsArr[i][6], motion:assetStatsArr[i][7], 
@@ -345,28 +359,17 @@ export default class SelectComponent extends Component{
            }
         var index = AssetInfoArr.findIndex(x => x.id === parseInt(this.state.asset) );
         var idof = AssetInfoArr[index];
-        function timeConverter(UNIX_timestamp){
-            var a = new Date(UNIX_timestamp * 1000);
-            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-            var year = a.getFullYear();
-            var month = months[a.getMonth()];
-            var date = a.getDate();
-            var hour = a.getHours();
-            var min = a.getMinutes();
-            var time = date +'-'+ month + '-'+ year + ' ' + hour + ':' + min;
-            return time;
-          }
         var timeNow;
         if(!dataBySiteId.timestamp){
             timeNow = '';
            } else{      
-            timeNow = timeConverter(dataBySiteId.timestamp);
+            timeNow = this.timeConverter(dataBySiteId.timestamp);
            }
         var AssetTimeNow;
         if(!dataBySiteId.timestamp){
             timeNow = '';
         } else{      
-            AssetTimeNow = timeConverter(dataBySiteId.timestamp);
+            AssetTimeNow = this.timeConverter(dataBySiteId.timestamp);
         }
         var rName = this.state.regionData[this.state.regionData.findIndex(x => x.id=== parseInt(dataBySiteId.region))]
         if(rName){
@@ -382,12 +385,25 @@ export default class SelectComponent extends Component{
             if(!alert.timestamp){
                 AlertTimeNow = '';
             } else{      
-                AlertTimeNow = timeConverter(alert.timestamp);
+                AlertTimeNow = this.timeConverter(alert.timestamp);
+            }
+            var assetname;
+            if(alert.asset.name){
+                assetname = alert.asset.name
+            } else {
+                assetname = "-"
+            }
+            var sitename;
+            if(alert.site.name){
+                sitename = alert.asset.name
+            } else {
+                sitename = "-"
             }
         return <tr key={i}>
             <td>{i+1+rowsPerPag*pag}</td>
             <td>{alert.event}</td>
-            <td>{alert.asset_name}</td>
+            {alert.site.name? <td>{alert.site.name}</td>:<td>-</td>}
+            {alert.asset.name? <td>{}</td>:<td>-</td>}
             <td>{AlertTimeNow}</td>
         </tr>
         })
@@ -401,7 +417,7 @@ export default class SelectComponent extends Component{
                 <Fragment>
                     <Wrapper className="col-lg-12">
                         <Wrapper className="row">
-                            <Wrapper className="col-lg-6 ">
+                            <Wrapper className="col-lg-5 ">
                                 <Wrapper className="apna-box">
                                     <select id="sitee" className="form-control" name ="siteId" value={site} onChange={this.handleSite}>
                                         <option className="brave" value="" disabled defaultValue>Select Site</option>
@@ -409,7 +425,14 @@ export default class SelectComponent extends Component{
                                     </select>
                                 </Wrapper>
                             </Wrapper>
-                            <Wrapper className="col-lg-6 ">
+                            <Wrapper className="col-lg-2">
+                                <Wrapper className="apna-box">
+                                    <select id="sitee" className="form-control" disabled>
+                                        <option className="brave" value="" disabled defaultValue>Select Site</option>
+                                    </select>
+                                </Wrapper>
+                            </Wrapper>
+                            <Wrapper className="col-lg-5 ">
                                 <Wrapper className="apna-box">
                                     {!site ?  <select style={{color:'gray'}} id="assete" className="form-control" name ="siteId" disabled value={asset}>
                                         <option  className="brave" value="" disabled defaultValue>Please Select A Site</option>
@@ -433,7 +456,6 @@ export default class SelectComponent extends Component{
                                     <Wrapper className="col-sm-8"><h1 style={{color:'#0992e1'}}>{ru.length}</h1><span><p style={{fontSize:'14px'}}>Registered Undiscovered</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"Registered Undiscovered"} src ={RegisteredUnDiscoverd}/></Wrapper>
                                 </Wrapper>
-
 
                                 <Wrapper className="mycontent">
                                     <Wrapper className="col-sm-8"><h1 style={{color:'#fd3550'}}>{rd.length}</h1><span><p style={{fontSize:'14px'}}>Registered Discovered</p></span></Wrapper>
@@ -567,7 +589,7 @@ export default class SelectComponent extends Component{
                                         <tbody>
                                             {(index>=0)? <tr>
                                                 <td>{idof.asset_id}</td>
-                                                <td>{idof.asset_name}</td>
+                                                <td>{idof.asset}</td>
                                                 <td>{AssetTimeNow}</td>
                                             </tr>:undefined}
                                         </tbody>
@@ -588,9 +610,10 @@ export default class SelectComponent extends Component{
                                 <thead>
                                     <tr>
                                         <th style={{width:'10%'}}>Sr#</th>
-                                        <th style={{width:'35%'}}>Event</th>
-                                        <th style={{width:'25%'}}>Asset</th>
-                                        <th style={{width:'30%'}}>Created At</th>
+                                        <th style={{width:'25%'}}>Event</th>
+                                        <th style={{width:'20%'}}>Site</th>
+                                        <th style={{width:'20%'}}>Asset</th>
+                                        <th style={{width:'25%'}}>Created At</th>
                                     </tr>
                                 </thead>
                                 <tbody>
