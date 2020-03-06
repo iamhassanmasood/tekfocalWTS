@@ -145,13 +145,14 @@ export default class SelectComponent extends Component{
             var offset = this.state.count-100; 
         axios.get(`${BASE_URL}:${PORT}/${ALERTS_API}/?limit=100&offset=${offset}`, {headers})
         .then(res=> {
-            console.log(res)
             if (res.status === 200) {
-                var alertsData = res.data.results.map(item=>{
-                    return {event: item.event, timestamp: item.timestamp, asset: item.asset, site:item.site.name}
-            })
+                var arr = res.data.results;
+                var Alertdata = []
+                for(var i=0; i<arr.length; i++){
+                Alertdata.push({ event: arr[i].event, asset:arr[i].asset, site:arr[i].site, timestamp: arr[i].timestamp })
+            }
            this.setState({
-            Alertdata: alertsData.sort((a, b)=> b.timestamp-a.timestamp),
+            Alertdata: Alertdata.sort((a, b)=> b.timestamp-a.timestamp),
            })
           }
         }).catch(err=> err)})
@@ -227,14 +228,22 @@ export default class SelectComponent extends Component{
             }
             var alertMessage = data.message;
             if(alertMessage.length>0){
-                const toastmessage = alertMessage.split(',')[0]+ " is "+ alertMessage.split(',')[1]+'now.';
-                let {Alertdata} = this.state;
-                Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
-                this.setState({Alertdata, toast:toastmessage})
-                toast.success(this.state.toast)
+                var toastmessage;
+                const linkexist = alertMessage.includes('Link');
+                var {Alertdata} = this.state;
+                if(linkexist){
+                    toastmessage = alertMessage.split(',')[2]+' is '+ alertMessage.split(',')[1]
+                    Alertdata.unshift({site:alertMessage.split(',')[2], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[3], asset:null})
+                    this.setState({Alertdata, toast:toastmessage})
+                } else {
+                    toastmessage = alertMessage.split(',')[0]+' is '+ alertMessage.split(',')[1]
+                    Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2], site:null})
+                    this.setState({Alertdata, toast:toastmessage})
+                }
+                if(this.state.toast){
+                    toast.error(this.state.toast)
+                }
                 setTimeout(()=> this.setState({toast:undefined}), 0)
-            } else if(!data.message){
-                this.setState({toast:''})
             }
           }
     };
@@ -323,10 +332,6 @@ export default class SelectComponent extends Component{
     render() {
 
         const {siteData, site, assetData, Alertdata, asset, dataBySiteId, pag, rowsPerPag, done, loading} = this.state;
-        /**This console will be remove after sort out toastism 
-        console.log(this.state.toast, "Check")
-        console.log(Alertdata, "Check alert Data")*/
-
         const sites = siteData.map((site, i)=>(
             <option key= {i} value={site.id}> {site.site_name} </option>))
         const assets = assetData.map((ast, i)=>(
@@ -387,23 +392,12 @@ export default class SelectComponent extends Component{
             } else{      
                 AlertTimeNow = this.timeConverter(alert.timestamp);
             }
-            var assetname;
-            if(alert.asset.name){
-                assetname = alert.asset.name
-            } else {
-                assetname = "-"
-            }
-            var sitename;
-            if(alert.site.name){
-                sitename = alert.asset.name
-            } else {
-                sitename = "-"
-            }
+
         return <tr key={i}>
             <td>{i+1+rowsPerPag*pag}</td>
             <td>{alert.event}</td>
-            {alert.site.name? <td>{alert.site.name}</td>:<td>-</td>}
-            {alert.asset.name? <td>{}</td>:<td>-</td>}
+            {alert.site? <td>{alert.site.name}</td>:<td>-</td>}
+            {alert.asset? <td>{alert.asset.name}</td>:<td>-</td>}
             <td>{AlertTimeNow}</td>
         </tr>
         })
@@ -634,7 +628,7 @@ export default class SelectComponent extends Component{
                         </BoxWrapper>
                     </Wrapper>
                     <ToastContainer position="top-right"
-                        autoClose={2000}
+                        autoClose={5000}
                         hideProgressBar
                         newestOnTop={false}
                         closeOnClick

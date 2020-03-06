@@ -28,11 +28,16 @@ export default class AlertManagementComponent extends React.PureComponent{
             var offset = this.state.count-100; 
         axios.get(`${BASE_URL}:${PORT}/${ALERTS_API}/?limit=100&offset=${offset}`, {headers})
         .then(res=> {
-            console.log(res.data.results)
         if (res.status===200) {
-           this.setState({
-            Alertdata: res.data.results,
-            done:false
+            var arr = res.data.results;
+            var Alertdata = []
+                for(var i=0; i<arr.length; i++){
+                Alertdata.push({ event: arr[i].event, asset:arr[i].asset, site:arr[i].site, timestamp: arr[i].timestamp })
+            }
+
+           this.setState({ 
+               Alertdata,
+               done:false
            })
         }
       }).catch(err =>  {
@@ -52,7 +57,6 @@ export default class AlertManagementComponent extends React.PureComponent{
             clearTimeout(connectInterval);
         };
         wss.onclose = e => {
-
             that.timeout = that.timeout + that.timeout;
             connectInterval = setTimeout(this.checkAlert, Math.min(10000, that.timeout));
         };
@@ -65,9 +69,16 @@ export default class AlertManagementComponent extends React.PureComponent{
             }
             var alertMessage = data.message;
             if(alertMessage.length>0){
-                let {Alertdata} = this.state;
-                Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2]})
-                this.setState({Alertdata:Alertdata})
+
+                const linkexist = alertMessage.includes('Link');
+                var {Alertdata} = this.state;
+                if(linkexist){
+                    Alertdata.unshift({site:alertMessage.split(',')[2], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[3], asset:null})
+                    this.setState({Alertdata})
+                } else {
+                    Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2], site:null})
+                    this.setState({Alertdata})
+                }
             }
           }
     };
@@ -103,25 +114,29 @@ export default class AlertManagementComponent extends React.PureComponent{
       }
       
     render(){
-    const {Alertdata, page, rowsPerPage} = this.state;
-    const rows = Alertdata.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).reverse().map((alt, i)=>{
-        var AlertTimeNow;
-        if(!alt.timestamp){
-            AlertTimeNow = '';
-        } else{      
-            AlertTimeNow = this.timeConverter(alt.timestamp);
-        }
-    return <TableRow key={alt.id} style={{height:'30px'}}>
-        <TableData >{i+1+rowsPerPage*page}</TableData>
-        <TableData >{alt.event}</TableData>
-        <TableData>{alt.site.name}</TableData>
-        <TableData>{alt.asset}</TableData>
-        <TableData>{AlertTimeNow}</TableData>
-        </TableRow>})
+        const {Alertdata, page, rowsPerPage} = this.state;
 
-        if(this.state.redirect){
-            return <Redirect to='/login'/>
+        if(Alertdata){   
+            var rows = Alertdata.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).reverse().map((alt, i)=>{
+                var AlertTimeNow;
+                if(!alt.timestamp){
+                    AlertTimeNow = '';
+                } else{      
+                    AlertTimeNow = this.timeConverter(alt.timestamp);
+                }
+                return <TableRow key={i} style={{height:'30px'}}>
+                    <TableData >{i+1+rowsPerPage*page}</TableData>
+                    <TableData >{alt.event}</TableData>
+                    {alt.site? <TableData>{alt.site.name}</TableData>:<TableData>-</TableData>}
+                    {alt.asset?<TableData>{alt.asset.name}</TableData>:<TableData>-</TableData>}
+                    <TableData>{AlertTimeNow}</TableData>
+                </TableRow>
+                })
         }
+
+            if(this.state.redirect){
+                return <Redirect to='/login'/>
+            }
         return (
             <Fragment>    
                 <Break/>
