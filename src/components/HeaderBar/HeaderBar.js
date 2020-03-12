@@ -140,13 +140,13 @@ export default function HeaderBar(props) {
               </IconWrapper>
             </NavLink>
         </SideWrapper>
-        <SideWrapper >
+        {/* <SideWrapper >
             <NavLink exact to="/reporting" className='main-nav' activeClassName='main-nav-active'>
               <IconWrapper className="row" title=" Transfer Assets"><TrendingUpIcon fontSize="small"/> 
                 <NameItem className={clsx({[classes.sideBarNames]: open, [classes.sideBarNamesShift]:!open })}> Reporting</NameItem>
               </IconWrapper>
             </NavLink>
-        </SideWrapper>
+        </SideWrapper> */}
       </Drawer>
 
       <Modal  style ={{color: "black"}} isOpen={openModal} toggle={toggleModal} backdrop={false}>

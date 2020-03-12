@@ -19,7 +19,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { compose, withProps} from "recompose"
 import { withScriptjs, withGoogleMap, GoogleMap, Marker} from "react-google-maps"
 import { Redirect } from "react-router-dom";
-import Loading from '../../container/Loading/Loading'
+import Loading from '../../container/Loading/Loading';
+import {Modal, ModalHeader, ModalBody, ModalFooter} from 'reactstrap';
 
 
 const MapWithAMarker = compose( withProps({
@@ -33,14 +34,14 @@ const MapWithAMarker = compose( withProps({
 )(props => {
     if(!props.lat){
         return (
-        <GoogleMap defaultOptions={{ styles: mapStyles }} defaultZoom={8} center={{ lat:34, lng:67 }}>
+        <GoogleMap defaultOptions={{ styles: mapStyles }} defaultZoom={4} center={{ lat:23.6260333, lng:-102.5375005 }}>
             {/* <Marker position={{ lat:latit, lng:longit }}/> */}
         </GoogleMap>
         )} else{
         var latit = props.lat;
         var longit = props.lng;
             return (
-            <GoogleMap ref={props.onMapLoad} onClick={props.onMapClick} defaultOptions={{ styles: mapStyles }} defaultZoom={8} center={{ lat:latit, lng:longit }}>
+            <GoogleMap ref={props.onMapLoad} onClick={props.onMapClick} defaultOptions={{ styles: mapStyles }} zoom={10} center={{ lat:latit, lng:longit }}>
                 <Marker  icon={MarkerIcon} position={{ lat:latit, lng:longit }}/>
             </GoogleMap>
             )
@@ -62,6 +63,12 @@ export default class SelectComponent extends Component{
             regionData: [],
             asset: '',
             ID: 'ABC',
+            flag:true, ua_asset_name:undefined, ua_site_name:undefined,
+            dict: [],
+            dictRU: [],
+            dictRD: [],
+            dictStolen: [],
+            dictIntransit: [],
 
             options: {
             labels: ['Registered Undiscovered', 'Registered Discovered', 'UnAuthorized Entry',  'Stolen', 'In Transit'],
@@ -94,7 +101,12 @@ export default class SelectComponent extends Component{
             redirect:false,
             done:false,
             loading:false,  
-            toast:undefined        
+            toast:undefined,
+            registeredUnDiscoveredModalState:false,        
+            registeredDiscoveredModalState:false,        
+            unauthModalState:false,        
+            stolenModalState:false,        
+            inTransitModalState:false        
         }
     }
 
@@ -227,19 +239,53 @@ export default class SelectComponent extends Component{
                 var data = JSON.parse(e.data);
             }
             var alertMessage = data.message;
+
             if(alertMessage.length>0){
                 var toastmessage;
-                const linkexist = alertMessage.includes('Link');
                 var {Alertdata} = this.state;
-                if(linkexist){
-                    toastmessage = alertMessage.split(',')[2]+' is '+ alertMessage.split(',')[1]
-                    Alertdata.unshift({site:alertMessage.split(',')[2], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[3], asset:null})
-                    this.setState({Alertdata, toast:toastmessage})
-                } else {
-                    toastmessage = alertMessage.split(',')[0]+' is '+ alertMessage.split(',')[1]
-                    Alertdata.unshift({asset:alertMessage.split(',')[0], event:alertMessage.split(',')[1], timestamp:alertMessage.split(',')[2], site:null})
-                    this.setState({Alertdata, toast:toastmessage})
-                }
+                Alertdata.unshift({asset:{ name: alertMessage.split(',')[0]}, event:alertMessage.split(',')[1], site:{name: alertMessage.split(',')[2]}, timestamp:alertMessage.split(',')[3]})
+                this.setState({Alertdata})
+
+                    if(alertMessage.split(',')[1] === "Link Up" || alertMessage.split(',')[1] === "Link Down" ){
+                        toastmessage = alertMessage.split(',')[2]+' is '+ alertMessage.split(',')[1]
+                        this.setState({Alertdata, toast:toastmessage})
+                    }
+                    else{
+                        toastmessage = alertMessage.split(',')[0]+' is '+ alertMessage.split(',')[1]
+                        this.setState({Alertdata, toast:toastmessage})
+                    }
+                    if(alertMessage.split(',')[1] === "Registered Undiscovered" ){
+                        this.setState({flag:false})
+                        const dictionaryDataRU = [...this.state.dictRU]
+                        dictionaryDataRU.push({asset_name:  alertMessage.split(',')[0],site_name: alertMessage.split(',')[2], status:'Registered Undiscovered'})
+                        this.setState({dictRU:dictionaryDataRU})
+                    }
+                    if(alertMessage.split(',')[1] === "Registered Discovered" ){
+                        this.setState({flag:false})
+                        const dictionaryDataRD = [...this.state.dictRD]
+                        dictionaryDataRD.push({asset_name:  alertMessage.split(',')[0],site_name: alertMessage.split(',')[2], status:'Registered Discovered'})
+                        this.setState({dictRD:dictionaryDataRD})
+                    }
+                    if(alertMessage.split(',')[1] === "Unauthorized " ){
+                        this.setState({flag:false})
+                        const dictionaryData = [...this.state.dict]
+                        dictionaryData.push({asset_name:  alertMessage.split(',')[0],site_name: alertMessage.split(',')[2], status:'Unauthorized'})
+                        this.setState({dict:dictionaryData})
+                    }
+                    if(alertMessage.split(',')[1] === "Stolen" ){
+                        this.setState({flag:false})
+                        const dictionaryDataStolen = [...this.state.dictStolen]
+                        dictionaryDataStolen.push({asset_name:  alertMessage.split(',')[0],site_name: alertMessage.split(',')[2], status:'Stolen'})
+                        this.setState({dictStolen:dictionaryDataStolen})
+                    }
+                    if(alertMessage.split(',')[1] === "Intransit " ){
+                        this.setState({flag:false})
+                        const dictionaryDataIntransit = [...this.state.dictIntransit]
+                        dictionaryDataIntransit.push({asset_name:  alertMessage.split(',')[0],site_name: alertMessage.split(',')[2], status:'Intransit'})
+                        this.setState({dictIntransit:dictionaryDataIntransit})
+                    }
+                   
+
                 if(this.state.toast){
                     toast.error(this.state.toast)
                 }
@@ -329,14 +375,41 @@ export default class SelectComponent extends Component{
         return time;
       }
 
+      toggleRegisteredUnDiscoveredModal(){
+          this.setState({
+            registeredUnDiscoveredModalState:true
+          })
+      }
+      toggleRegisteredDiscoveredModal(){
+          this.setState({
+            registeredDiscoveredModalState:true
+          })
+      }
+      toggleUnAuthModal(){
+          this.setState({
+            unauthModalState:true
+          })
+      }
+      toggleStolenModal(){
+          this.setState({
+            stolenModalState:true
+          })
+      }
+      toggleInTransitModal(){
+          this.setState({
+            inTransitModalState:true
+          })
+      }
+    
+
     render() {
 
-        const {siteData, site, assetData, Alertdata, asset, dataBySiteId, pag, rowsPerPag, done, loading} = this.state;
+        const {siteData, site, assetData, Alertdata, asset, dataBySiteId, pag, rowsPerPag, done, loading, unauthModalState, flag} = this.state;
         const sites = siteData.map((site, i)=>(
-            <option key= {i} value={site.id}> {site.site_name} </option>))
+            <option id="sitenamefromid" key= {i} value={site.id}> {site.site_name} </option>))
         const assets = assetData.map((ast, i)=>(
             <option key={i} value={ast[10]}>{ast[1]}</option>))
-
+            
         var arr = [];
         let assetStatsArr = arr.concat(this.state.assetData);
          for(let i=0; i<assetStatsArr.length; i++){
@@ -405,13 +478,89 @@ export default class SelectComponent extends Component{
         if(this.state.redirect){
             return <Redirect to='/login'/>
         }
+        let RegisteredUnDiscoveredArray =[];
+        for(let i=0; i<assetStatsArr.length; i++){
+            if(assetStatsArr[i][9] === "unauthorized"){
+                RegisteredUnDiscoveredArray.push({asset_id: assetStatsArr[i][0], asset_name: assetStatsArr[i][1], site: '-', type: assetStatsArr[i][9]})
+            }
+            
+        }
+        
+
+        var rumod = RegisteredUnDiscoveredArray.map((item, i)=> <tr key={i}>
+            <td>{item.asset_id}</td>
+            <td>{item.asset_name}</td>
+            <td>{item.site}</td>
+            <td>{item.type}</td>
+        </tr>)
+
+
+        let RegisteredDiscoveredArray =[];
+        for(let i=0; i<assetStatsArr.length; i++){
+            if(assetStatsArr[i][9] === "unauthorized"){
+                RegisteredDiscoveredArray.push({asset_id: assetStatsArr[i][0], asset_name: assetStatsArr[i][1], site: '-', type: assetStatsArr[i][9]})
+            }
+            
+        }
+        
+        var rdmod = RegisteredDiscoveredArray.map((item, i)=> <tr key={i}>
+            <td>{item.asset_id}</td>
+            <td>{item.asset_name}</td>
+            <td>{item.site}</td>
+            <td>{item.type}</td>
+        </tr>)
+        let unAuthArray =[];
+        for(let i=0; i<assetStatsArr.length; i++){
+            if(assetStatsArr[i][9] === "unauthorized"){
+                unAuthArray.push({asset_id: assetStatsArr[i][0], asset_name: assetStatsArr[i][1], site: '-', type: assetStatsArr[i][9]})
+            }
+            
+        }
+
+        var unauthmod = unAuthArray.map((item, i)=> <tr key={i}>
+            <td>{item.asset_id}</td>
+            <td>{item.asset_name}</td>
+            <td>{item.site}</td>
+            <td>{item.type}</td>
+        </tr>)
+
+        let stolenArray =[];
+        for(let i=0; i<assetStatsArr.length; i++){
+            if(assetStatsArr[i][9] === "unauthorized"){
+                stolenArray.push({asset_id: assetStatsArr[i][0], asset_name: assetStatsArr[i][1], site: '-', type: assetStatsArr[i][9]})
+            }
+            
+        }
+        
+        var stolenmod = stolenArray.map((item, i)=> <tr key={i}>
+            <td>{item.asset_id}</td>
+            <td>{item.asset_name}</td>
+            <td>{item.site}</td>
+            <td>{item.type}</td>
+        </tr>)
+
+        let inTransitArray =[];
+        for(let i=0; i<assetStatsArr.length; i++){
+            if(assetStatsArr[i][9] === "unauthorized"){
+                inTransitArray.push({asset_id: assetStatsArr[i][0], asset_name: assetStatsArr[i][1], site: '-', type: assetStatsArr[i][9]})
+            }
+            
+        }
+        
+        var itmod = inTransitArray.map((item, i)=> <tr key={i}>
+            <td>{item.asset_id}</td>
+            <td>{item.asset_name}</td>
+            <td>{item.site}</td>
+            <td>{item.type}</td>
+        </tr>)
+
         return (
             <Fragment>
             {done?<Loading/>: 
                 <Fragment>
                     <Wrapper className="col-lg-12">
                         <Wrapper className="row">
-                            <Wrapper className="col-lg-5 ">
+                            <Wrapper className="col-lg-6 ">
                                 <Wrapper className="apna-box">
                                     <select id="sitee" className="form-control" name ="siteId" value={site} onChange={this.handleSite}>
                                         <option className="brave" value="" disabled defaultValue>Select Site</option>
@@ -419,14 +568,7 @@ export default class SelectComponent extends Component{
                                     </select>
                                 </Wrapper>
                             </Wrapper>
-                            <Wrapper className="col-lg-2">
-                                <Wrapper className="apna-box">
-                                    <select id="sitee" className="form-control" disabled>
-                                        <option className="brave" value="" disabled defaultValue>Select Site</option>
-                                    </select>
-                                </Wrapper>
-                            </Wrapper>
-                            <Wrapper className="col-lg-5 ">
+                            <Wrapper className="col-lg-6 ">
                                 <Wrapper className="apna-box">
                                     {!site ?  <select style={{color:'gray'}} id="assete" className="form-control" name ="siteId" disabled value={asset}>
                                         <option  className="brave" value="" disabled defaultValue>Please Select A Site</option>
@@ -445,6 +587,36 @@ export default class SelectComponent extends Component{
 
                     <Wrapper className="col-lg-12">
                         <Wrapper className="adjustment">
+                            {site?<main className="mycards">
+                                <Wrapper className="mycontent" onClick={this.toggleRegisteredUnDiscoveredModal.bind(this)} style={{cursor:'pointer'}}>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#0992e1'}}>{ru.length}</h1><span><p style={{fontSize:'14px'}}>Registered Undiscovered</p></span></Wrapper>
+                                    <Wrapper className="col-sm-4"><img alt={"Registered Undiscovered"} src ={RegisteredUnDiscoverd}/></Wrapper>
+                                </Wrapper>
+
+                                <Wrapper className="mycontent" onClick={this.toggleRegisteredDiscoveredModal.bind(this)} style={{cursor:'pointer'}}>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#fd3550'}}>{rd.length}</h1><span><p style={{fontSize:'14px'}}>Registered Discovered</p></span></Wrapper>
+                                    <Wrapper className="col-sm-4"><img alt={"Registered Discovered"} src ={RegisteredDiscoverd}/></Wrapper>
+                                </Wrapper>
+                                
+                                
+                                <Wrapper className="mycontent" onClick={this.toggleUnAuthModal.bind(this)} style={{cursor:'pointer'}}>    
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#7f8281'}}>{ua.length}</h1><span><p style={{fontSize:'14px'}}>UnAuthorized Entry</p></span></Wrapper>
+                                    <Wrapper className="col-sm-4"><img alt={"UnAuthorized Entry"} src ={UnAuthorized}/></Wrapper>
+                                </Wrapper>
+
+                                <Wrapper className="mycontent" onClick={this.toggleStolenModal.bind(this)} style={{cursor:'pointer'}}>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#1e5aa0'}}>{st.length}</h1><span><p style={{fontSize:'14px'}}>Stolen</p></span></Wrapper>
+                                    <Wrapper className="col-sm-4"><img alt={"Stolen"} src ={Stolen}/></Wrapper>
+                                </Wrapper>
+                                
+                                
+                                <Wrapper className="mycontent" onClick={this.toggleInTransitModal.bind(this)} style={{cursor:'pointer'}}>
+                                    <Wrapper className="col-sm-8"><h1 style={{color:'#fb551d'}}>{it.length}</h1><span><p style={{fontSize:'14px'}}>In Transit</p></span></Wrapper>
+                                    <Wrapper className="col-sm-4"><img alt={"In Transit"} src ={InTransit}/></Wrapper>
+                                </Wrapper>
+
+                            </main>:
+
                             <main className="mycards">
                                 <Wrapper className="mycontent">
                                     <Wrapper className="col-sm-8"><h1 style={{color:'#0992e1'}}>{ru.length}</h1><span><p style={{fontSize:'14px'}}>Registered Undiscovered</p></span></Wrapper>
@@ -455,8 +627,7 @@ export default class SelectComponent extends Component{
                                     <Wrapper className="col-sm-8"><h1 style={{color:'#fd3550'}}>{rd.length}</h1><span><p style={{fontSize:'14px'}}>Registered Discovered</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"Registered Discovered"} src ={RegisteredDiscoverd}/></Wrapper>
                                 </Wrapper>
-                                
-                                
+
                                 <Wrapper className="mycontent">    
                                     <Wrapper className="col-sm-8"><h1 style={{color:'#7f8281'}}>{ua.length}</h1><span><p style={{fontSize:'14px'}}>UnAuthorized Entry</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"UnAuthorized Entry"} src ={UnAuthorized}/></Wrapper>
@@ -473,7 +644,7 @@ export default class SelectComponent extends Component{
                                     <Wrapper className="col-sm-8"><h1 style={{color:'#fb551d'}}>{it.length}</h1><span><p style={{fontSize:'14px'}}>In Transit</p></span></Wrapper>
                                     <Wrapper className="col-sm-4"><img alt={"In Transit"} src ={InTransit}/></Wrapper>
                                 </Wrapper>
-                            </main>
+                            </main>}
                         </Wrapper>
                     </Wrapper>
 
@@ -641,6 +812,105 @@ export default class SelectComponent extends Component{
                             <footer>© 2020 Cellsenal, All rights reserved</footer>
                         </Wrapper>
                     </Wrapper>
+
+                    <Modal isOpen={this.state.registeredUnDiscoveredModalState} toggle={this.toggleRegisteredUnDiscoveredModal} backdrop={false} size='lg'>
+                        <ModalHeader  toggle={()=>this.setState({registeredUnDiscoveredModalState:false})}> Registered UnDiscoverd Assets </ModalHeader>
+                        <ModalBody> 
+                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Registered UnDiscoverd Asset Available</p>:''}
+                                    {unAuthArray.length!==0? <table className= "new-table border">
+                                        <thead>
+                                            <tr>
+                                                <th  style={{width:'15%'}}>Asset Id</th>
+                                                <th style={{width:'20%'}}>Asset Name</th>
+                                                <th style={{width:'20%'}}>Site</th>
+                                                <th style={{width:'35%'}}>States</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {unauthmod}
+                                        </tbody>
+                                    </table>:undefined}
+                        </ModalBody>                    
+                    </Modal>
+                    <Modal isOpen={this.state.registeredDiscoveredModalState} toggle={this.toggleRegisteredDiscoveredModal} backdrop={false} size='lg'>
+                    <ModalHeader  toggle={()=>this.setState({registeredDiscoveredModalState:false})}> Registered Discoverd Assets </ModalHeader>
+                        <ModalBody> 
+                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Registered Discoverd Asset Available</p>:''}
+                                    {unAuthArray.length!==0? <table className= "new-table border">
+                                        <thead>
+                                            <tr>
+                                                <th  style={{width:'15%'}}>Asset Id</th>
+                                                <th style={{width:'20%'}}>Asset Name</th>
+                                                <th style={{width:'20%'}}>Site</th>
+                                                <th style={{width:'35%'}}>States</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {unauthmod}
+                                        </tbody>
+                                    </table>:undefined}
+                        </ModalBody>                       
+                    </Modal>
+
+                    <Modal isOpen={unauthModalState} toggle={this.toggleUnAuthModal} backdrop={false} size='lg'>
+                    <ModalHeader  toggle={()=>this.setState({unauthModalState:false})}> UnAuthorized Assets </ModalHeader>
+                        <ModalBody> 
+                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No UnAuthorized Asset Available</p>:''}
+                                    {unAuthArray.length!==0? <table className= "new-table border">
+                                        <thead>
+                                            <tr>
+                                                <th  style={{width:'15%'}}>Asset Id</th>
+                                                <th style={{width:'20%'}}>Asset Name</th>
+                                                <th style={{width:'20%'}}>Site</th>
+                                                <th style={{width:'35%'}}>States</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {unauthmod}
+                                        </tbody>
+                                    </table>:undefined}
+                        </ModalBody>                    
+                    </Modal>
+
+                    <Modal isOpen={this.state.stolenModalState} toggle={this.toggleStolenModal} backdrop={false} size='lg'>
+                        <ModalHeader  toggle={()=>this.setState({stolenModalState:false})}> Stolen Assets </ModalHeader>
+                        <ModalBody> 
+                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Stolen Asset Available</p>:''}
+                                    {unAuthArray.length!==0? <table className= "new-table border">
+                                        <thead>
+                                            <tr>
+                                                <th  style={{width:'15%'}}>Asset Id</th>
+                                                <th style={{width:'20%'}}>Asset Name</th>
+                                                <th style={{width:'20%'}}>Site</th>
+                                                <th style={{width:'35%'}}>States</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {unauthmod}
+                                        </tbody>
+                                    </table>:undefined}
+                        </ModalBody>                    
+                    </Modal>
+                    <Modal isOpen={this.state.inTransitModalState} toggle={this.toggleInTransitModal} backdrop={false} size='lg'>
+                        <ModalHeader  toggle={()=>this.setState({inTransitModalState:false})}> InTransit Assets </ModalHeader>
+                        <ModalBody> 
+                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No InTransit Asset Available</p>:''}
+                                    {unAuthArray.length!==0? <table className= "new-table border">
+                                        <thead>
+                                            <tr>
+                                                <th  style={{width:'15%'}}>Asset Id</th>
+                                                <th style={{width:'20%'}}>Asset Name</th>
+                                                <th style={{width:'20%'}}>Site</th>
+                                                <th style={{width:'35%'}}>States</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {unauthmod}
+                                        </tbody>
+                                    </table>:undefined}
+                        </ModalBody>                    
+                    </Modal>
+
                 </Fragment>}
             </Fragment>
         )

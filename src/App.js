@@ -43,7 +43,7 @@ function App() {
         <AuthenticatedRoutes exact path="/transferassets" component={TransferAssets}/>
         <AuthenticatedRoutes exact path="/assetmanagement" component={AssetManagement}/>
         <AuthenticatedRoutes exact path="/report" component={Reports}/>
-        <AuthenticatedRoutes exact path="/reporting" component={Reporting}/>
+        {/* <AuthenticatedRoutes exact path="/reporting" component={Reporting}/> */}
         <AuthenticatedRoutes exact path="/*" component={NotFound}/>
       </Switch>
     </Router>

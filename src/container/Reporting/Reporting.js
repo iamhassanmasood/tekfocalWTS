@@ -1,11 +1,12 @@
 import React, { Component , Fragment} from 'react'
 import {Wrapper, Table, TableRow, TableBody, TableData, TableHead, TableHeadings, HeadingTag, Break} from '../Dashboard/StyledCompo';
-import {BASE_URL, PORT, SITES_API, maxdate} from '../../config/config.js'
+import {BASE_URL, PORT, SITES_API} from '../../config/config.js'
 import axios from 'axios'; import ReportValidation from './validator'
 import TablePagination from '@material-ui/core/TablePagination';
 import Loading from '../Loading/Loading';
 import Chart from 'react-apexcharts';
 import ReactApexChart from 'react-apexcharts';
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 export default class Reporting extends Component {
 
@@ -172,7 +173,6 @@ export default class Reporting extends Component {
             var finalPie = [registered_undiscovered[0].count, registered_discovered[0].count, unauthorized[0].count, stolen[0].count, intransit[0].count];
         }
         var emptyPie = [0, 0, 0, 0, 0] 
-        console.log(totalData)
         return (
             <Fragment>
                 <Wrapper className="col-lg-12" style={{marginTop:'2rem'}}>
@@ -203,7 +203,7 @@ export default class Reporting extends Component {
                                 {timeperiod === "daily"?
                                 <Wrapper className="col-lg-3">
                                     <label> Choose Date:</label>
-                                    <input className="form-control" id="date" type="date" name='date' max={maxdate} onChange={this.handleChangeDate} value={date}/>
+                                    <input className="form-control" id="date" type="date" name='date' onChange={this.handleChangeDate} value={date}/>
                                 </Wrapper>:''}
                                 
                                 {timeperiod === "weekly"?
@@ -283,6 +283,7 @@ export default class Reporting extends Component {
                         />:''}
 
                     </Wrapper>:''}
+                    <PDFDownloadLink/>
                 </Wrapper>
             </Fragment>
         )
