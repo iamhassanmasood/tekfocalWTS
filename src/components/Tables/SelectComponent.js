@@ -227,7 +227,6 @@ export default class SelectComponent extends Component{
             clearTimeout(connectInterval);
         };
         wss.onclose = e => {
-
             that.timeout = that.timeout + that.timeout;
             connectInterval = setTimeout(this.checkAlert, Math.min(10000, that.timeout));
         };
@@ -239,6 +238,8 @@ export default class SelectComponent extends Component{
                 var data = JSON.parse(e.data);
             }
             var alertMessage = data.message;
+
+            console.log(data.message, 'This is alert')
 
             if(alertMessage.length>0){
                 var toastmessage;
@@ -835,8 +836,8 @@ export default class SelectComponent extends Component{
                     <Modal isOpen={this.state.registeredDiscoveredModalState} toggle={this.toggleRegisteredDiscoveredModal} backdrop={false} size='lg'>
                     <ModalHeader  toggle={()=>this.setState({registeredDiscoveredModalState:false})}> Registered Discoverd Assets </ModalHeader>
                         <ModalBody> 
-                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Registered Discoverd Asset Available</p>:''}
-                                    {unAuthArray.length!==0? <table className= "new-table border">
+                            {RegisteredDiscoveredArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Registered Discoverd Asset Available</p>:''}
+                                    {RegisteredDiscoveredArray.length!==0? <table className= "new-table border">
                                         <thead>
                                             <tr>
                                                 <th  style={{width:'15%'}}>Asset Id</th>
@@ -846,7 +847,7 @@ export default class SelectComponent extends Component{
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {unauthmod}
+                                            {rdmod}
                                         </tbody>
                                     </table>:undefined}
                         </ModalBody>                       
@@ -875,8 +876,8 @@ export default class SelectComponent extends Component{
                     <Modal isOpen={this.state.stolenModalState} toggle={this.toggleStolenModal} backdrop={false} size='lg'>
                         <ModalHeader  toggle={()=>this.setState({stolenModalState:false})}> Stolen Assets </ModalHeader>
                         <ModalBody> 
-                            {unAuthArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Stolen Asset Available</p>:''}
-                                    {unAuthArray.length!==0? <table className= "new-table border">
+                            {stolenArray.length===0?<p style={{color:'red', fontWeight:'bold'}}> No Stolen Asset Available</p>:''}
+                                    {stolenArray.length!==0? <table className= "new-table border">
                                         <thead>
                                             <tr>
                                                 <th  style={{width:'15%'}}>Asset Id</th>
@@ -886,7 +887,7 @@ export default class SelectComponent extends Component{
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {unauthmod}
+                                            {stolenmod}
                                         </tbody>
                                     </table>:undefined}
                         </ModalBody>                    
